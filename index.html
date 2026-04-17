@@ -196,7 +196,7 @@
             const div = document.createElement('div');
             div.className = "h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center";
             div.innerHTML = `
-                <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
+                <div class="h-[80%] aspect-square overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                     <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_${index.toString().padStart(2, '0')}</span>
                     <img src="${path}" alt="${name}" class="w-full h-full object-cover cursor-pointer">
                     <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold metadata-info">RAW_DATA</span>
