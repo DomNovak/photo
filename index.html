@@ -1,1 +1,572 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUNST // FOTOGRAFIE</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Syne (Künstlerisch) & Inter (Klar) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 
+    <!-- Konfiguration für Farben -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'acid': '#ffec5d',
+                        'black': '#050505',
+                        'white': '#ffffff',
+                        'light': '#f4f4f4',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                        'display': ['Syne', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Eigene Stile für den experimentellen Look im Light Mode */
+        body {
+            background-color: #ffffff;
+            color: #050505;
+            overflow-x: hidden;
+            cursor: none; /* Standard-Mauszeiger verstecken */
+        }
+
+        /* Eigener Mauszeiger */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #050505;
+            transition: background-color 0.2s ease;
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #050505;
+            background-color: transparent;
+            transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s, transform 0.2s;
+        }
+
+        /* Hover-Status für Mauszeiger */
+        .cursor-outline.hovered {
+            transform: translate(-50%, -50%) scale(2);
+            background-color: rgba(5, 5, 5, 0.05);
+        }
+        
+        .cursor-dot.hovered {
+            background-color: transparent;
+        }
+
+        /* Fallback für Touch-Geräte */
+        @media (hover: none) {
+            .cursor-dot, .cursor-outline {
+                display: none;
+            }
+            body {
+                cursor: auto;
+            }
+        }
+
+        /* Marquee-Animation */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+            animation-play-state: paused; /* Standard: Pausiert */
+        }
+
+        /* Animation nur beim Hovern abspielen */
+        .marquee-wrapper:hover .marquee-content {
+            animation-play-state: running;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Bild-Hover-Effekt */
+        .project-card img {
+            transition: all 0.5s ease;
+            filter: grayscale(100%) contrast(1.1) brightness(1.05);
+        }
+        
+        .project-card:hover img {
+            filter: grayscale(0%) contrast(1) brightness(1);
+        }
+
+        /* Scrollbar ausblenden für einen sauberen Look (Galerie) */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Reguläre Scrollbar für den Body */
+        body::-webkit-scrollbar {
+            width: 8px;
+        }
+        body::-webkit-scrollbar-track {
+            background: #f0f0f0; 
+        }
+        body::-webkit-scrollbar-thumb {
+            background: #050505; 
+        }
+
+        /* Textauswahl-Farbe */
+        ::selection {
+            background: #050505;
+            color: #ffec5d;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-black selection:text-acid">
+
+    <!-- Eigene Mauszeiger-Elemente -->
+    <div class="cursor-dot hidden md:block"></div>
+    <div class="cursor-outline hidden md:block"></div>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="fixed inset-0 z-[100] bg-white/95 hidden justify-center items-center opacity-0 transition-opacity duration-300 backdrop-blur-md cursor-pointer">
+        <button id="lightbox-close" class="absolute top-6 right-8 text-black font-display font-bold text-xl hover:bg-acid px-2 transition-colors z-[101] tracking-widest">SCHLIESSEN [X]</button>
+        
+        <!-- Navigations-Buttons -->
+        <button id="lightbox-prev" class="absolute left-2 md:left-8 text-black hover:text-gray-500 z-[101] p-4 transition-colors group" aria-label="Zurück">
+             <span class="font-display font-black text-4xl md:text-6xl group-hover:-translate-x-2 transition-transform block">&lt;</span>
+        </button>
+        <button id="lightbox-next" class="absolute right-2 md:right-8 text-black hover:text-gray-500 z-[101] p-4 transition-colors group" aria-label="Weiter">
+            <span class="font-display font-black text-4xl md:text-6xl group-hover:translate-x-2 transition-transform block">&gt;</span>
+        </button>
+
+        <img id="lightbox-img" src="" alt="Vergrößerte Ansicht" class="max-h-[85vh] max-w-[80vw] object-contain shadow-2xl border border-black/10 cursor-default transition-opacity duration-200">
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-black/5 px-6 py-6 flex justify-between items-center transition-all">
+        <a href="#" class="text-black font-display font-bold text-2xl tracking-tighter hover:bg-acid px-1 transition-colors">NOIR.RAW</a>
+        <div class="hidden md:flex gap-8 text-sm font-light tracking-widest uppercase text-black">
+            <a href="#work" class="hover:bg-acid px-2 transition-colors">Projekte</a>
+            <a href="#about" class="hover:bg-acid px-2 transition-colors">Manifest</a>
+            <a href="#contact" class="hover:bg-acid px-2 transition-colors">Kontakt</a>
+        </div>
+        <!-- Mobile Menü-Taste (Nur visuell) -->
+        <button class="md:hidden text-black font-bold text-2xl hover:text-gray-600">☰</button>
+    </nav>
+
+    <!-- Hero Bereich -->
+    <header class="h-screen w-full flex flex-col justify-center items-center relative px-4 overflow-hidden bg-[#fdfdfd]">
+        <!-- Hintergrund-Elemente -->
+        <div class="absolute top-1/4 left-10 w-32 h-32 border border-black/10 rounded-full animate-pulse"></div>
+        <div class="absolute bottom-1/4 right-10 w-64 h-64 border border-black/5 rounded-full"></div>
+
+        <h1 class="font-display font-extrabold text-[12vw] leading-[0.85] text-center uppercase text-black z-10 cursor-none transition-colors duration-300">
+            Licht<br>
+            <span class="text-transparent stroke-text" style="-webkit-text-stroke: 2px #050505;">Schatten</span><br>
+            Raum
+        </h1>
+        
+        <p class="mt-8 font-sans text-sm md:text-base tracking-[0.3em] uppercase text-gray-500 max-w-md text-center font-semibold">
+            Experimentelle Fotografie & Visuelle Kunst
+        </p>
+
+        <div class="absolute bottom-10 animate-bounce">
+            <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+        </div>
+    </header>
+
+    <!-- Marquee Bereich -->
+    <section class="marquee-wrapper bg-acid text-black py-4 border-y border-black transform -rotate-1 scale-105 z-20 relative cursor-none">
+        <div class="marquee-container">
+            <div class="marquee-content font-display font-bold text-4xl md:text-6xl uppercase tracking-tight">
+                +++ Experimente +++ Analoge Prozesse +++ Digitale Glitches +++ Visuelle Identität +++ Konzeptkunst +++ Keine Regeln +++ F*** KI +++ 
+                +++ Experimente +++ Analoge Prozesse +++ Digitale Glitches +++ Visuelle Identität +++ Konzeptkunst +++ Keine Regeln +++ F*** KI +++
+            </div>
+        </div>
+    </section>
+
+    <!-- Galerie / Projekte Bereich -->
+    <main id="work" class="py-32 w-full overflow-hidden relative bg-[#f4f4f4]">
+        
+        <!-- Header & Navigation -->
+        <div class="px-4 md:px-12 mb-8 max-w-7xl mx-auto w-full">
+            <div>
+                <h2 class="font-display text-4xl md:text-6xl font-bold mb-4 text-black leading-tight">
+                    Ausgewählte<br>
+                    <span class="bg-acid px-2 inline-block mt-1">Fragmente</span>
+                </h2>
+                <div class="h-1 w-24 bg-black mt-6"></div>
+            </div>
+        </div>
+
+        <!-- Container für den Slider und die Pfeile -->
+        <div class="relative w-full group/gallery mt-12">
+            
+            <!-- Galerie Navigationspfeile -->
+            <button id="gallery-prev" class="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 border border-black/20 hover:border-black hover:bg-black hover:text-white rounded-full flex items-center justify-center transition-all duration-300 group cursor-none bg-white/50 backdrop-blur-sm text-black shadow-sm">
+                <span class="font-display text-xl group-hover:-translate-x-1 transition-transform">←</span>
+            </button>
+            
+            <button id="gallery-next" class="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 border border-black/20 hover:border-black hover:bg-black hover:text-white rounded-full flex items-center justify-center transition-all duration-300 group cursor-none bg-white/50 backdrop-blur-sm text-black shadow-sm">
+                <span class="font-display text-xl group-hover:translate-x-1 transition-transform">→</span>
+            </button>
+
+            <!-- Horizontaler Scroll-Container -->
+            <div id="gallery-track" class="flex gap-12 overflow-x-auto px-12 md:px-24 py-4 snap-x snap-mandatory scroll-smooth hide-scrollbar items-center h-[500px] md:h-[650px]">
+                
+                <!-- Element 1 -->
+                <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
+                    <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
+                        <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_01</span>
+                        <img src="https://images.unsplash.com/photo-1493846377348-154df67be926?q=80&w=800&auto=format&fit=crop" alt="Abstrakte Architektur" class="w-full h-full object-cover cursor-pointer">
+                        <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">1/125s f/8</span>
+                    </div>
+                    <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
+                        <h3 class="text-sm font-bold font-display uppercase tracking-widest text-black">Beton</h3>
+                    </div>
+                </div>
+
+                <!-- Element 2 -->
+                <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
+                    <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
+                        <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_02</span>
+                        <img src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop" alt="Lichtspuren" class="w-full h-full object-cover cursor-pointer">
+                        <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">30s f/16</span>
+                    </div>
+                    <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
+                        <h3 class="text-sm font-bold font-display uppercase tracking-widest text-black">Neon</h3>
+                    </div>
+                </div>
+
+                <!-- Element 3 -->
+                <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
+                    <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
+                        <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_03</span>
+                        <img src="https://images.unsplash.com/photo-1595126732364-9646b97666c0?q=80&w=800&auto=format&fit=crop" alt="Körnige Textur" class="w-full h-full object-cover cursor-pointer">
+                        <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">1/60s f/4</span>
+                    </div>
+                    <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
+                        <h3 class="text-sm font-bold font-display uppercase tracking-widest text-black">Rauschen</h3>
+                    </div>
+                </div>
+
+                <!-- Element 4 -->
+                <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
+                    <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
+                        <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_04</span>
+                        <img src="https://images.unsplash.com/photo-1515462277126-2dd0c162007a?q=80&w=800&auto=format&fit=crop" alt="Schattenspiel" class="w-full h-full object-cover cursor-pointer">
+                        <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">1/500s f/2.8</span>
+                    </div>
+                    <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
+                        <h3 class="text-sm font-bold font-display uppercase tracking-widest text-black">Schatten</h3>
+                    </div>
+                </div>
+
+                <!-- Element 5 - Textblock Experiment -->
+                <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
+                    <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-black/10 bg-white flex flex-col items-center justify-center text-center p-4 relative shadow-sm group-hover:border-black transition-colors">
+                        <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">NOTE_01</span>
+                        <h3 class="font-display text-2xl font-black uppercase mb-2 text-black">Roh-<br>daten</h3>
+                        <p class="font-mono text-[10px] text-gray-500 font-bold leading-relaxed max-w-[150px]">
+                            VERARBEITUNG...<br>
+                            ENTW: D-76<br>
+                            TEMP: 20°C
+                        </p>
+                    </div>
+                    <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
+                        <h3 class="text-sm font-bold font-display uppercase tracking-widest text-black">Info</h3>
+                    </div>
+                </div>
+
+                <!-- Element 6 -->
+                <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
+                    <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
+                        <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_05</span>
+                        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" alt="Abstraktes Öl" class="w-full h-full object-cover cursor-pointer">
+                        <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">MAKRO</span>
+                    </div>
+                    <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
+                        <h3 class="text-sm font-bold font-display uppercase tracking-widest text-black">Flüssig</h3>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Über / Manifest Bereich -->
+    <section id="about" class="bg-white py-24 relative overflow-hidden border-t border-black/10">
+        <div class="absolute -right-20 top-20 text-[20vw] text-black/[0.03] font-display font-black leading-none select-none">RAW</div>
+        
+        <div class="container mx-auto px-4 md:px-12 grid md:grid-cols-2 gap-16 items-center relative z-10">
+            <div>
+                <h2 class="font-display text-5xl md:text-7xl font-bold mb-8 text-black leading-tight">
+                    Das<br>
+                    <span class="bg-acid px-2 inline-block mt-2">Manifest</span>
+                </h2>
+            </div>
+            <div class="space-y-6 text-gray-700 font-light text-lg md:text-xl leading-relaxed">
+                <p>
+                    <span class="bg-black text-white px-2 py-0.5 font-bold mr-2 text-sm">01.</span> Wir suchen nicht nach der perfekten Belichtung, sondern nach der perfekten Emotion.
+                </p>
+                <p>
+                    <span class="bg-black text-white px-2 py-0.5 font-bold mr-2 text-sm">02.</span> Körnung ist kein Fehler. Sie ist die Textur der Realität.
+                </p>
+                <p>
+                    <span class="bg-black text-white px-2 py-0.5 font-bold mr-2 text-sm">03.</span> In einer Welt voller Farben ist Schwarz-Weiß die Wahrheit.
+                </p>
+                <div class="pt-8">
+                    <a href="#" class="inline-block border-2 border-black text-black px-8 py-3 uppercase tracking-widest text-sm font-bold hover:bg-black hover:text-white transition-all duration-300">Mehr Lesen</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kontakt Bereich -->
+    <footer id="contact" class="bg-acid text-black py-20 px-4 border-t-2 border-black">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
+            <div>
+                <h2 class="font-display text-6xl md:text-8xl font-black uppercase leading-none mb-6">Zusammen<br>Kreieren</h2>
+                <a href="mailto:kontakt@fotoart.de" class="text-2xl md:text-3xl font-bold border-b-2 border-black hover:text-white hover:border-white transition-colors">
+                    hello@studio-noir.raw
+                </a>
+            </div>
+
+            <div class="flex flex-col gap-4 text-right">
+                <a href="#" class="font-bold uppercase tracking-wider hover:text-white transition-colors">Instagram</a>
+                <a href="#" class="font-bold uppercase tracking-wider hover:text-white transition-colors">Behance</a>
+                <a href="#" class="font-bold uppercase tracking-wider hover:text-white transition-colors">ArtStation</a>
+                <p class="mt-8 text-sm opacity-70 font-semibold">© 2026 NOIR PROJECT. Alle Rechte vorbehalten.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Lightbox Logik
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const closeBtn = document.getElementById('lightbox-close');
+        const prevBtn = document.getElementById('lightbox-prev');
+        const nextBtn = document.getElementById('lightbox-next');
+        
+        // Alle Projektbilder sammeln
+        let projectImages = Array.from(document.querySelectorAll('.project-card img'));
+        let currentIndex = 0;
+
+        const updateImage = (index) => {
+            const img = projectImages[index];
+            // Kurz ausblenden für weichen Übergang
+            lightboxImg.style.opacity = '0.5';
+            
+            setTimeout(() => {
+                lightboxImg.src = img.src;
+                lightboxImg.style.opacity = '1';
+            }, 150);
+        };
+
+        const setupLightboxEvents = () => {
+            // Bilder neu abfragen, da sie durch Klonen verändert sein könnten
+            projectImages = Array.from(document.querySelectorAll('.project-card img'));
+            
+            projectImages.forEach((img, index) => {
+                img.addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    currentIndex = index;
+                    lightboxImg.src = img.src;
+                    lightbox.classList.remove('hidden');
+                    lightbox.classList.add('flex');
+                    setTimeout(() => {
+                        lightbox.classList.remove('opacity-0');
+                    }, 10);
+                });
+            });
+        };
+
+        // Navigation Funktionen
+        const showNext = (e) => {
+            if(e) e.stopPropagation();
+            currentIndex = (currentIndex + 1) % projectImages.length;
+            updateImage(currentIndex);
+        };
+
+        const showPrev = (e) => {
+            if(e) e.stopPropagation();
+            currentIndex = (currentIndex - 1 + projectImages.length) % projectImages.length;
+            updateImage(currentIndex);
+        };
+
+        // Event Listeners für die Navigation
+        nextBtn.addEventListener('click', showNext);
+        prevBtn.addEventListener('click', showPrev);
+
+        // Lightbox schließen Funktion
+        const closeLightbox = () => {
+            lightbox.classList.add('opacity-0');
+            setTimeout(() => {
+                lightbox.classList.remove('flex');
+                lightbox.classList.add('hidden');
+                lightboxImg.src = '';
+            }, 300);
+        };
+
+        // Schließen Events
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeLightbox();
+        });
+        
+        // Schließen bei Klick auf den Hintergrund
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        // Tastatur-Navigation
+        document.addEventListener('keydown', (e) => {
+            if (lightbox.classList.contains('hidden')) return;
+            
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowRight') showNext();
+            if (e.key === 'ArrowLeft') showPrev();
+        });
+
+        // --- ENDLOS-SCROLL LOGIK ---
+        const track = document.getElementById('gallery-track');
+        const galPrev = document.getElementById('gallery-prev');
+        const galNext = document.getElementById('gallery-next');
+
+        // Klon-Logik
+        const originalChildren = Array.from(track.children);
+        
+        // Klonen für das "Ende" (um unendlich nach rechts scrollen zu können)
+        originalChildren.forEach(child => {
+            const clone = child.cloneNode(true);
+            clone.setAttribute('aria-hidden', 'true');
+            track.appendChild(clone);
+        });
+
+        // Klonen für den "Anfang" (um unendlich nach links scrollen zu können)
+        originalChildren.reverse().forEach(child => {
+            const clone = child.cloneNode(true);
+            clone.setAttribute('aria-hidden', 'true');
+            track.prepend(clone);
+        });
+
+        // Lightbox Events neu initialisieren (wegen der neuen Klone)
+        setupLightboxEvents();
+
+        // Scroll Handling
+        const calculateSetWidth = () => {
+             // Ungefähre Schätzung: Summe der Breiten der ursprünglichen Elemente
+             let width = 0;
+             // Wir messen das erste Drittel der scrollWidth
+             width = track.scrollWidth / 3;
+             return width;
+        };
+
+        let setWidth = 0;
+
+        // Startposition auf das mittlere Set setzen
+        const initScrollPosition = () => {
+            setWidth = calculateSetWidth();
+            track.scrollLeft = setWidth;
+        };
+        
+        // Bei Größenänderung des Fensters anpassen
+        window.addEventListener('resize', initScrollPosition);
+        
+        // Auf Layout-Berechnung warten
+        window.addEventListener('load', initScrollPosition);
+        setTimeout(initScrollPosition, 100);
+
+        // Prüfer für die Endlos-Schleife
+        track.addEventListener('scroll', () => {
+            if (track.scrollLeft <= 10) {
+                // Linker Rand erreicht -> springe zum Ende des mittleren Sets
+                track.style.scrollBehavior = 'auto';
+                track.scrollLeft = setWidth * 2; 
+                track.scrollLeft = track.scrollLeft + setWidth;
+                track.style.scrollBehavior = 'smooth';
+            } 
+            else if (track.scrollLeft >= setWidth * 2) {
+                // Rechter Rand erreicht -> springe zum Anfang des mittleren Sets
+                track.style.scrollBehavior = 'auto';
+                track.scrollLeft = track.scrollLeft - setWidth;
+                track.style.scrollBehavior = 'smooth';
+            }
+        });
+
+        // Klick-Handler für die Buttons (+48px für gap-12 Abstand)
+        galPrev.addEventListener('click', () => {
+            const scrollAmount = track.children[0].offsetWidth + 48; 
+            track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        });
+        
+        galNext.addEventListener('click', () => {
+            const scrollAmount = track.children[0].offsetWidth + 48; 
+            track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        });
+
+        // Eigene Mauszeiger Logik
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+
+        window.addEventListener('mousemove', function(e) {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            // Punkt folgt sofort
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+
+            // Umriss folgt mit leichter Verzögerung
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 200, fill: "forwards" });
+        });
+
+        // Hover-Effekt auf Links/Bilder, um den Mauszeiger wachsen zu lassen
+        const hoverables = document.querySelectorAll('a, button, .project-card, img');
+        
+        hoverables.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorOutline.classList.add('hovered');
+                cursorDot.classList.add('hovered');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorOutline.classList.remove('hovered');
+                cursorDot.classList.remove('hovered');
+            });
+        });
+    </script>
+</body>
+</html>
