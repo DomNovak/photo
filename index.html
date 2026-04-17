@@ -170,17 +170,18 @@
         const track = document.getElementById('gallery-track');
         const MAX_CHECK = 50; // Maximale Anzahl an Bildern, die wir versuchen zu laden
         const photoFolder = 'photos/';
-        let foundImages = [];
+        let imagesToRender = [];
 
-        // --- FUNKTION: BILDER-ORDNER SCANNEN ---
+        // --- FUNKTION: BILDER-ORDNER SCANNEN UND SORTIEREN ---
         async function scanAndBuildGallery() {
             console.log("Starte Foto-Scan...");
             
-            for (let i = 1; i <= MAX_CHECK; i++) {
-                // Wir testen verschiedene Endungen (jpg, jpeg, png)
-                const extensions = ['jpg', 'JPEG', 'jpeg', 'png'];
-                let imagePath = null;
+            const extensions = ['jpg', 'JPEG', 'jpeg', 'png'];
+            const foundPaths = [];
 
+            // 1. Alle verfügbaren Bilder sammeln
+            for (let i = 1; i <= MAX_CHECK; i++) {
+                let imagePath = null;
                 for (let ext of extensions) {
                     const testPath = `${photoFolder}${i}.${ext}`;
                     const exists = await checkImageExists(testPath);
@@ -191,18 +192,28 @@
                 }
 
                 if (imagePath) {
-                    const fileName = imagePath.split('/').pop();
-                    const card = createCard(imagePath, fileName, i);
-                    track.appendChild(card);
-                    foundImages.push(imagePath);
+                    foundPaths.push(imagePath);
                 } else {
-                    // Wenn wir kein Bild finden, brechen wir ab (Ende des Ordners)
+                    // Stop, wenn die Nummerierung unterbrochen wird
                     break;
                 }
             }
 
-            // Erst wenn alle Bilder da sind, initialisieren wir den Endlos-Scroll & Lightbox
-            if (foundImages.length > 0) {
+            // 2. Alphabetisch sortieren nach dem reinen Dateinamen
+            foundPaths.sort((a, b) => {
+                const nameA = a.split('/').pop().toLowerCase();
+                const nameB = b.split('/').pop().toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+
+            // 3. Galerie aufbauen
+            if (foundPaths.length > 0) {
+                foundPaths.forEach((path, index) => {
+                    const fileName = path.split('/').pop();
+                    const card = createCard(path, fileName, index + 1);
+                    track.appendChild(card);
+                });
+
                 initEndlessScroll();
                 setupLightboxEvents();
                 initCursorEvents();
@@ -280,6 +291,7 @@
         // --- ENDLOS SCROLL & NAVIGATION ---
         function initEndlessScroll() {
             const originalItems = Array.from(track.children);
+            // Klone für Endlos-Effekt
             originalItems.forEach(item => track.appendChild(item.cloneNode(true)));
             originalItems.reverse().forEach(item => track.prepend(item.cloneNode(true)));
 
