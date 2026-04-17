@@ -147,6 +147,7 @@
             <button id="gallery-prev" class="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 border border-black/20 hover:bg-black hover:text-white rounded-full flex items-center justify-center transition-all bg-white/50 backdrop-blur-sm shadow-sm">←</button>
             <button id="gallery-next" class="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 border border-black/20 hover:bg-black hover:text-white rounded-full flex items-center justify-center transition-all bg-white/50 backdrop-blur-sm shadow-sm">→</button>
 
+            <!-- Der Track wird via JS geladen -->
             <div id="gallery-track" class="flex gap-12 overflow-x-auto px-12 md:px-24 py-4 snap-x snap-mandatory scroll-smooth hide-scrollbar items-center h-[500px] md:h-[650px]">
                 <!-- Bilder werden via JS geladen -->
             </div>
@@ -179,10 +180,10 @@
     <script>
         const track = document.getElementById('gallery-track');
         const photoFolder = 'photos/';
-        const LIMIT = 20; // Maximale Anzahl an Bildern zum Prüfen
+        const LIMIT = 20; 
         const extensions = ['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG', 'webp', 'WEBP'];
+        let setWidth = 0;
 
-        // Funktion zum Prüfen ob ein Bild existiert
         function checkImageExists(url) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -208,21 +209,15 @@
             return div;
         }
 
-        // Metadaten-Extraktion für jedes Bild
         function extractMetadata(imgElement, titleElement, metaElement) {
             EXIF.getData(imgElement, function() {
-                // Versuche verschiedene Metadaten-Felder (Windows Titel landet oft in ImageDescription)
                 const title = EXIF.getTag(this, "ImageDescription") || EXIF.getTag(this, "Title") || EXIF.getTag(this, "ObjectName");
                 const model = EXIF.getTag(this, "Model");
                 const exposure = EXIF.getTag(this, "ExposureTime");
                 const fNumber = EXIF.getTag(this, "FNumber");
 
-                // Wenn ein Titel gefunden wurde, ersetze die Anzeige unter dem Bild
-                if (title) {
-                    titleElement.textContent = title;
-                }
+                if (title) titleElement.textContent = title;
 
-                // Technische Infos unten rechts am Bild anzeigen
                 let techInfo = "DATA_OK";
                 if (exposure && fNumber) {
                     techInfo = `1/${Math.round(1/exposure)}s f/${fNumber}`;
@@ -238,7 +233,6 @@
             const foundPaths = [];
             let consecutiveMisses = 0;
 
-            // 1. Alle verfügbaren Bilder sammeln (1 bis 20)
             for (let i = 1; i <= LIMIT; i++) {
                 let foundPath = null;
                 for (let ext of extensions) {
@@ -249,25 +243,21 @@
                         break;
                     }
                 }
-
                 if (foundPath) {
                     foundPaths.push(foundPath);
                     consecutiveMisses = 0;
                 } else {
                     consecutiveMisses++;
-                    // Stoppe, wenn wir 3 Nummern in Folge nichts finden
                     if (consecutiveMisses >= 3) break;
                 }
             }
 
-            // 2. Alphabetisch/Numerisch sortieren
             foundPaths.sort((a, b) => {
                 const nameA = a.split('/').pop().toLowerCase();
                 const nameB = b.split('/').pop().toLowerCase();
                 return nameA.localeCompare(nameB, undefined, {numeric: true});
             });
 
-            // 3. Karten rendern
             if (foundPaths.length > 0) {
                 foundPaths.forEach((path, index) => {
                     const fileName = path.split('/').pop();
@@ -277,18 +267,81 @@
                     const img = card.querySelector('img');
                     const titleDisp = card.querySelector('.title-display');
                     const metaDisp = card.querySelector('.metadata-info');
-                    
-                    // Metadaten auslesen, sobald das Bild geladen ist
                     img.onload = () => extractMetadata(img, titleDisp, metaDisp);
                 });
 
-                initEndlessScroll();
-                setupLightboxEvents();
-                initCursorEvents();
+                // Warten bis Layout stabil ist für Endlos-Scroll
+                setTimeout(() => {
+                    initEndlessScroll();
+                    setupLightboxEvents();
+                    initCursorEvents();
+                }, 500);
             } else {
-                track.innerHTML = '<p class="text-gray-400 font-mono p-8 text-center w-full uppercase">Keine Bilder gefunden. Bitte Dateien im Ordner /photos/ als 1.jpg, 2.jpg etc. benennen.</p>';
+                track.innerHTML = '<p class="text-gray-400 font-mono p-8 text-center w-full uppercase">Keine Bilder gefunden.</p>';
             }
         }
+
+        // --- ENDLOS SCROLL ---
+        function initEndlessScroll() {
+            const originalItems = Array.from(track.children);
+            if (originalItems.length > 4) {
+                // Klone erstellen
+                originalItems.forEach(item => track.appendChild(item.cloneNode(true)));
+                originalItems.reverse().forEach(item => track.prepend(item.cloneNode(true)));
+
+                updateTrackWidths();
+
+                // Initialer Sprung zur Mitte
+                track.scrollLeft = setWidth;
+
+                track.addEventListener('scroll', handleInfiniteScroll);
+                window.addEventListener('resize', () => {
+                    updateTrackWidths();
+                    track.scrollLeft = setWidth;
+                });
+            }
+        }
+
+        function updateTrackWidths() {
+            // Die Breite eines einzelnen "Sets" (Drittel des gesamten Scroll-Bereichs)
+            setWidth = track.scrollWidth / 3;
+        }
+
+        let isJumping = false;
+        function handleInfiniteScroll() {
+            if (isJumping) return;
+
+            const currentScroll = track.scrollLeft;
+            
+            // Linkes Ende erreicht -> zum Ende des mittleren Sets springen
+            if (currentScroll <= 10) {
+                isJumping = true;
+                track.classList.remove('snap-x', 'snap-mandatory'); // Snap kurz aus
+                track.scrollLeft = setWidth;
+                setTimeout(() => {
+                    track.classList.add('snap-x', 'snap-mandatory');
+                    isJumping = false;
+                }, 50);
+            } 
+            // Rechtes Ende erreicht -> zum Anfang des mittleren Sets springen
+            else if (currentScroll >= setWidth * 2 - 10) {
+                isJumping = true;
+                track.classList.remove('snap-x', 'snap-mandatory');
+                track.scrollLeft = setWidth;
+                setTimeout(() => {
+                    track.classList.add('snap-x', 'snap-mandatory');
+                    isJumping = false;
+                }, 50);
+            }
+        }
+
+        // Navigation Buttons
+        document.getElementById('gallery-prev').onclick = () => {
+            track.scrollBy({ left: -400, behavior: 'smooth' });
+        };
+        document.getElementById('gallery-next').onclick = () => {
+            track.scrollBy({ left: 400, behavior: 'smooth' });
+        };
 
         // --- LIGHTBOX ---
         const lightbox = document.getElementById('lightbox');
@@ -327,33 +380,6 @@
             lightboxImg.src = imgs[currentIdx].src;
         };
 
-        // --- ENDLOS SCROLL ---
-        function initEndlessScroll() {
-            const originalItems = Array.from(track.children);
-            if (originalItems.length > 5) {
-                originalItems.forEach(item => track.appendChild(item.cloneNode(true)));
-                originalItems.reverse().forEach(item => track.prepend(item.cloneNode(true)));
-
-                const setWidth = track.scrollWidth / 3;
-                track.scrollLeft = setWidth;
-
-                track.onscroll = () => {
-                    if (track.scrollLeft <= 10) {
-                        track.style.scrollBehavior = 'auto';
-                        track.scrollLeft = setWidth * 2;
-                        track.style.scrollBehavior = 'smooth';
-                    } else if (track.scrollLeft >= setWidth * 2) {
-                        track.style.scrollBehavior = 'auto';
-                        track.scrollLeft = setWidth;
-                        track.style.scrollBehavior = 'smooth';
-                    }
-                };
-            }
-        }
-
-        document.getElementById('gallery-prev').onclick = () => track.scrollBy({ left: -400, behavior: 'smooth' });
-        document.getElementById('gallery-next').onclick = () => track.scrollBy({ left: 400, behavior: 'smooth' });
-
         // --- CUSTOM CURSOR ---
         const cursorDot = document.querySelector('.cursor-dot');
         const cursorOutline = document.querySelector('.cursor-outline');
@@ -371,7 +397,6 @@
             });
         }
 
-        // Start
         window.onload = initGallery;
     </script>
 </body>
