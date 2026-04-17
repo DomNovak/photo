@@ -52,14 +52,14 @@
             border-radius: 50%;
             z-index: 9999;
             pointer-events: none;
-            /* Der Zaubertrick: Invertiert die Farbe basierend auf dem Hintergrund */
+            /* Invertiert die Farbe basierend auf dem Hintergrund */
             mix-blend-mode: difference; 
         }
 
         .cursor-dot {
             width: 8px;
             height: 8px;
-            background-color: #ffffff; /* Weiß wird durch difference auf weißem Grund zu schwarz, auf schwarzem zu weiß */
+            background-color: #ffffff; 
             transition: background-color 0.2s ease;
         }
 
@@ -74,7 +74,7 @@
         /* Hover-Status für Mauszeiger */
         .cursor-outline.hovered {
             transform: translate(-50%, -50%) scale(2);
-            background-color: #ffffff; /* Füllt den Kreis weiß, was den Inhalt darunter komplett invertiert (X-Ray Effekt) */
+            background-color: #ffffff; 
             border-color: transparent;
         }
         
@@ -100,10 +100,9 @@
         .marquee-content {
             display: inline-block;
             animation: marquee 20s linear infinite;
-            animation-play-state: paused; /* Standard: Pausiert */
+            animation-play-state: paused; 
         }
 
-        /* Animation nur beim Hovern abspielen */
         .marquee-wrapper:hover .marquee-content {
             animation-play-state: running;
         }
@@ -123,7 +122,7 @@
             filter: grayscale(0%) contrast(1) brightness(1);
         }
 
-        /* Scrollbar ausblenden für einen sauberen Look (Galerie) */
+        /* Scrollbar ausblenden */
         .hide-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -132,7 +131,6 @@
             scrollbar-width: none;
         }
         
-        /* Reguläre Scrollbar für den Body */
         body::-webkit-scrollbar {
             width: 8px;
         }
@@ -143,7 +141,6 @@
             background: #050505; 
         }
 
-        /* Textauswahl-Farbe */
         ::selection {
             background: #050505;
             color: #ffec5d;
@@ -152,7 +149,6 @@
 </head>
 <body class="antialiased selection:bg-black selection:text-acid">
 
-    <!-- Eigene Mauszeiger-Elemente -->
     <div class="cursor-dot hidden md:block"></div>
     <div class="cursor-outline hidden md:block"></div>
 
@@ -160,7 +156,6 @@
     <div id="lightbox" class="fixed inset-0 z-[100] bg-white/95 hidden justify-center items-center opacity-0 transition-opacity duration-300 backdrop-blur-md cursor-pointer">
         <button id="lightbox-close" class="absolute top-6 right-8 text-black font-display font-bold text-xl hover:bg-acid px-2 transition-colors z-[101] tracking-widest">SCHLIESSEN [X]</button>
         
-        <!-- Navigations-Buttons -->
         <button id="lightbox-prev" class="absolute left-2 md:left-8 text-black hover:text-gray-500 z-[101] p-4 transition-colors group" aria-label="Zurück">
              <span class="font-display font-black text-4xl md:text-6xl group-hover:-translate-x-2 transition-transform block">&lt;</span>
         </button>
@@ -168,7 +163,7 @@
             <span class="font-display font-black text-4xl md:text-6xl group-hover:translate-x-2 transition-transform block">&gt;</span>
         </button>
 
-        <img id="lightbox-img" src="" alt="Vergrößerte Ansicht" class="max-h-[85vh] max-w-[80vw] object-contain shadow-2xl border border-black/10 cursor-default transition-opacity duration-200">
+        <img id="lightbox-img" src="" alt="Vorschau" class="max-h-[85vh] max-w-[80vw] object-contain shadow-2xl border border-black/10 cursor-default transition-opacity duration-200">
     </div>
 
     <!-- Navigation -->
@@ -179,13 +174,11 @@
             <a href="#about" class="hover:bg-acid px-2 transition-colors">Manifest</a>
             <a href="#contact" class="hover:bg-acid px-2 transition-colors">Kontakt</a>
         </div>
-        <!-- Mobile Menü-Taste (Nur visuell) -->
         <button class="md:hidden text-black font-bold text-2xl hover:text-gray-600">☰</button>
     </nav>
 
-    <!-- Hero Bereich -->
+    <!-- Hero -->
     <header class="h-screen w-full flex flex-col justify-center items-center relative px-4 overflow-hidden bg-[#fdfdfd]">
-        <!-- Hintergrund-Elemente -->
         <div class="absolute top-1/4 left-10 w-32 h-32 border border-black/10 rounded-full animate-pulse"></div>
         <div class="absolute bottom-1/4 right-10 w-64 h-64 border border-black/5 rounded-full"></div>
 
@@ -204,7 +197,7 @@
         </div>
     </header>
 
-    <!-- Marquee Bereich -->
+    <!-- Marquee -->
     <section class="marquee-wrapper bg-acid text-black py-4 border-y border-black transform -rotate-1 scale-105 z-20 relative cursor-none">
         <div class="marquee-container">
             <div class="marquee-content font-display font-bold text-4xl md:text-6xl uppercase tracking-tight">
@@ -214,10 +207,9 @@
         </div>
     </section>
 
-    <!-- Galerie / Projekte Bereich -->
+    <!-- Galerie -->
     <main id="work" class="py-32 w-full overflow-hidden relative bg-[#f4f4f4]">
         
-        <!-- Header & Navigation -->
         <div class="px-4 md:px-12 mb-8 max-w-7xl mx-auto w-full">
             <div>
                 <h2 class="font-display text-4xl md:text-6xl font-bold mb-4 text-black leading-tight">
@@ -228,10 +220,8 @@
             </div>
         </div>
 
-        <!-- Container für den Slider und die Pfeile -->
         <div class="relative w-full group/gallery mt-12">
             
-            <!-- Galerie Navigationspfeile -->
             <button id="gallery-prev" class="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 border border-black/20 hover:border-black hover:bg-black hover:text-white rounded-full flex items-center justify-center transition-all duration-300 group cursor-none bg-white/50 backdrop-blur-sm text-black shadow-sm">
                 <span class="font-display text-xl group-hover:-translate-x-1 transition-transform">←</span>
             </button>
@@ -240,58 +230,54 @@
                 <span class="font-display text-xl group-hover:translate-x-1 transition-transform">→</span>
             </button>
 
-            <!-- Horizontaler Scroll-Container -->
             <div id="gallery-track" class="flex gap-12 overflow-x-auto px-12 md:px-24 py-4 snap-x snap-mandatory scroll-smooth hide-scrollbar items-center h-[500px] md:h-[650px]">
                 
-                <!-- Element 1 -->
+                <!-- Die Bilder werden hier durchlaufen. Das Skript unten setzt die Dateinamen. -->
                 <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
                     <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                         <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_01</span>
-                        <img src="photos/1.JPEG" alt="Foto 1" class="w-full h-full object-cover cursor-pointer">
+                        <img src="photos/1.JPEG" alt="1.JPEG" class="w-full h-full object-cover cursor-pointer">
                         <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">1/125s f/8</span>
                     </div>
                     <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
-                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">1.jpg</h3>
+                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">...</h3>
                     </div>
                 </div>
 
-                <!-- Element 2 -->
                 <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
                     <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                         <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_02</span>
-                        <img src="photos/2.jpg" alt="Foto 2" class="w-full h-full object-cover cursor-pointer">
+                        <img src="photos/2.jpg" alt="2.jpg" class="w-full h-full object-cover cursor-pointer">
                         <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">30s f/16</span>
                     </div>
                     <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
-                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">2.jpg</h3>
+                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">...</h3>
                     </div>
                 </div>
 
-                <!-- Element 3 -->
                 <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
                     <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                         <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_03</span>
-                        <img src="photos/3.jpg" alt="Foto 3" class="w-full h-full object-cover cursor-pointer">
+                        <img src="photos/3.jpg" alt="3.jpg" class="w-full h-full object-cover cursor-pointer">
                         <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">1/60s f/4</span>
                     </div>
                     <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
-                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">3.jpg</h3>
+                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">...</h3>
                     </div>
                 </div>
 
-                <!-- Element 4 -->
                 <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
                     <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                         <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_04</span>
-                        <img src="photos/4.jpg" alt="Foto 4" class="w-full h-full object-cover cursor-pointer">
+                        <img src="photos/4.jpg" alt="4.jpg" class="w-full h-full object-cover cursor-pointer">
                         <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">1/500s f/2.8</span>
                     </div>
                     <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
-                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">4.jpg</h3>
+                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">...</h3>
                     </div>
                 </div>
 
-                <!-- Element 5 - Textblock Experiment -->
+                <!-- Textblock -->
                 <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
                     <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-black/10 bg-white flex flex-col items-center justify-center text-center p-4 relative shadow-sm group-hover:border-black transition-colors">
                         <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">NOTE_01</span>
@@ -307,75 +293,70 @@
                     </div>
                 </div>
 
-                <!-- Element 6 -->
+                <!-- Weiter mit Bildern 5-10 -->
                 <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
                     <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                         <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_05</span>
-                        <img src="photos/5.jpg" alt="Foto 5" class="w-full h-full object-cover cursor-pointer">
+                        <img src="photos/5.jpg" alt="5.jpg" class="w-full h-full object-cover cursor-pointer">
                         <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">MAKRO</span>
                     </div>
                     <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
-                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">5.jpg</h3>
+                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">...</h3>
                     </div>
                 </div>
 
-                <!-- Element 7 -->
                 <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
                     <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                         <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_06</span>
-                        <img src="photos/6.jpg" alt="Foto 6" class="w-full h-full object-cover cursor-pointer">
+                        <img src="photos/6.jpg" alt="6.jpg" class="w-full h-full object-cover cursor-pointer">
                         <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">ISO 400</span>
                     </div>
                     <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
-                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">6.jpg</h3>
+                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">...</h3>
                     </div>
                 </div>
 
-                <!-- Element 8 -->
                 <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
                     <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                         <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_07</span>
-                        <img src="photos/7.jpg" alt="Foto 7" class="w-full h-full object-cover cursor-pointer">
+                        <img src="photos/7.jpg" alt="7.jpg" class="w-full h-full object-cover cursor-pointer">
                         <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">1/250s f/5.6</span>
                     </div>
                     <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
-                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">7.jpg</h3>
+                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">...</h3>
                     </div>
                 </div>
 
-                <!-- Element 9 -->
                 <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
                     <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                         <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_08</span>
-                        <img src="photos/8.jpg" alt="Foto 8" class="w-full h-full object-cover cursor-pointer">
+                        <img src="photos/8.jpg" alt="8.jpg" class="w-full h-full object-cover cursor-pointer">
                         <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">3s f/11</span>
                     </div>
                     <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
-                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">8.jpg</h3>
+                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">...</h3>
                     </div>
                 </div>
 
-                <!-- Element 10 -->
                 <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
                     <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                         <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_09</span>
-                        <img src="photos/9.jpg" alt="Foto 9" class="w-full h-full object-cover cursor-pointer">
+                        <img src="photos/9.jpg" alt="9.jpg" class="w-full h-full object-cover cursor-pointer">
                         <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">1/1000s f/1.4</span>
                     </div>
                     <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
-                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">9.jpg</h3>
+                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">...</h3>
                     </div>
                 </div>
 
-                <!-- Element 11 -->
                 <div class="h-full snap-center shrink-0 relative group project-card cursor-none flex flex-col justify-center">
                     <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                         <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_10</span>
-                        <img src="photos/10.jpg" alt="Foto 10" class="w-full h-full object-cover cursor-pointer">
+                        <img src="photos/10.jpg" alt="10.jpg" class="w-full h-full object-cover cursor-pointer">
                         <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">MULTIPLE</span>
                     </div>
                     <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
-                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">10.jpg</h3>
+                        <h3 class="text-xs font-bold font-mono tracking-widest text-black">...</h3>
                     </div>
                 </div>
 
@@ -384,7 +365,7 @@
 
     </main>
 
-    <!-- Über / Manifest Bereich -->
+    <!-- Über -->
     <section id="about" class="bg-white py-24 relative overflow-hidden border-t border-black/10">
         <div class="absolute -right-20 top-20 text-[20vw] text-black/[0.03] font-display font-black leading-none select-none">RAW</div>
         
@@ -405,49 +386,52 @@
                 <p>
                     <span class="bg-black text-white px-2 py-0.5 font-bold mr-2 text-sm">03.</span> In einer Welt voller Farben ist Schwarz-Weiß die Wahrheit.
                 </p>
-                <div class="pt-8">
-                    <a href="#" class="inline-block border-2 border-black text-black px-8 py-3 uppercase tracking-widest text-sm font-bold hover:bg-black hover:text-white transition-all duration-300">Mehr Lesen</a>
-                </div>
             </div>
         </div>
     </section>
 
-    <!-- Kontakt Bereich -->
+    <!-- Footer -->
     <footer id="contact" class="bg-acid text-black py-20 px-4 border-t-2 border-black">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
             <div>
                 <h2 class="font-display text-6xl md:text-8xl font-black uppercase leading-none mb-6">Zusammen<br>Gestalten</h2>
-                <a href="mailto:kontakt@fotoart.de" class="text-2xl md:text-3xl font-bold border-b-2 border-black hover:text-white hover:border-white transition-colors">
+                <a href="mailto:hello@dnvk.at" class="text-2xl md:text-3xl font-bold border-b-2 border-black hover:text-white hover:border-white transition-colors">
                     hello@dnvk.at
                 </a>
             </div>
-
-            <div class="flex flex-col gap-4 text-right">
-                <a href="#" class="font-bold uppercase tracking-wider hover:text-white transition-colors">Instagram</a>
-                <a href="#" class="font-bold uppercase tracking-wider hover:text-white transition-colors">Behance</a>
-                <a href="#" class="font-bold uppercase tracking-wider hover:text-white transition-colors">ArtStation</a>
-                <p class="mt-8 text-sm opacity-70 font-semibold">© 2026 DNVK Dominik Novak. Alle Rechte vorbehalten.</p>
+            <div class="text-right">
+                <p class="text-sm opacity-70 font-semibold">© 2026 DNVK Dominik Novak. Alle Rechte vorbehalten.</p>
             </div>
         </div>
     </footer>
 
     <script>
+        // --- FUNKTION: DATEINAMEN AUTOMATISCH SETZEN ---
+        function updateFileNames() {
+            const cards = document.querySelectorAll('.project-card');
+            cards.forEach(card => {
+                const img = card.querySelector('img');
+                const title = card.querySelector('h3.text-xs');
+                // Nur wenn ein Bild vorhanden ist (überspringt z.B. die DEV_NOTES Karte)
+                if (img && title && title.textContent === '...') {
+                    const src = img.getAttribute('src');
+                    const fileName = src.split('/').pop();
+                    title.textContent = fileName;
+                }
+            });
+        }
+
         // Lightbox Logik
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const closeBtn = document.getElementById('lightbox-close');
-        const prevBtn = document.getElementById('lightbox-prev');
-        const nextBtn = document.getElementById('lightbox-next');
         
-        // Alle Projektbilder sammeln
-        let projectImages = Array.from(document.querySelectorAll('.project-card img'));
+        let projectImages = [];
         let currentIndex = 0;
 
-        const updateImage = (index) => {
+        const updateLightboxImage = (index) => {
             const img = projectImages[index];
-            // Kurz ausblenden für weichen Übergang
             lightboxImg.style.opacity = '0.5';
-            
             setTimeout(() => {
                 lightboxImg.src = img.src;
                 lightboxImg.style.opacity = '1';
@@ -455,180 +439,100 @@
         };
 
         const setupLightboxEvents = () => {
-            // Bilder neu abfragen, da sie durch Klonen verändert sein könnten
             projectImages = Array.from(document.querySelectorAll('.project-card img'));
-            
             projectImages.forEach((img, index) => {
-                img.addEventListener('click', (e) => {
+                img.onclick = (e) => {
                     e.stopPropagation(); 
                     currentIndex = index;
                     lightboxImg.src = img.src;
                     lightbox.classList.remove('hidden');
                     lightbox.classList.add('flex');
-                    setTimeout(() => {
-                        lightbox.classList.remove('opacity-0');
-                    }, 10);
-                });
+                    setTimeout(() => lightbox.classList.remove('opacity-0'), 10);
+                };
             });
         };
 
-        // Navigation Funktionen
-        const showNext = (e) => {
-            if(e) e.stopPropagation();
+        // Navigation
+        document.getElementById('lightbox-next').onclick = (e) => {
+            e.stopPropagation();
             currentIndex = (currentIndex + 1) % projectImages.length;
-            updateImage(currentIndex);
+            updateLightboxImage(currentIndex);
         };
 
-        const showPrev = (e) => {
-            if(e) e.stopPropagation();
+        document.getElementById('lightbox-prev').onclick = (e) => {
+            e.stopPropagation();
             currentIndex = (currentIndex - 1 + projectImages.length) % projectImages.length;
-            updateImage(currentIndex);
+            updateLightboxImage(currentIndex);
         };
 
-        // Event Listeners für die Navigation
-        nextBtn.addEventListener('click', showNext);
-        prevBtn.addEventListener('click', showPrev);
-
-        // Lightbox schließen Funktion
         const closeLightbox = () => {
             lightbox.classList.add('opacity-0');
             setTimeout(() => {
                 lightbox.classList.remove('flex');
                 lightbox.classList.add('hidden');
-                lightboxImg.src = '';
             }, 300);
         };
 
-        // Schließen Events
-        closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            closeLightbox();
-        });
-        
-        // Schließen bei Klick auf den Hintergrund
-        lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) {
-                closeLightbox();
-            }
-        });
+        closeBtn.onclick = closeLightbox;
+        lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
 
-        // Tastatur-Navigation
-        document.addEventListener('keydown', (e) => {
-            if (lightbox.classList.contains('hidden')) return;
-            
-            if (e.key === 'Escape') closeLightbox();
-            if (e.key === 'ArrowRight') showNext();
-            if (e.key === 'ArrowLeft') showPrev();
-        });
-
-        // --- ENDLOS-SCROLL LOGIK ---
+        // --- ENDLOS-SCROLL ---
         const track = document.getElementById('gallery-track');
-        const galPrev = document.getElementById('gallery-prev');
-        const galNext = document.getElementById('gallery-next');
-
-        // Klon-Logik
         const originalChildren = Array.from(track.children);
         
-        // Klonen für das "Ende" (um unendlich nach rechts scrollen zu können)
-        originalChildren.forEach(child => {
-            const clone = child.cloneNode(true);
-            clone.setAttribute('aria-hidden', 'true');
-            track.appendChild(clone);
-        });
+        originalChildren.forEach(child => track.appendChild(child.cloneNode(true)));
+        originalChildren.reverse().forEach(child => track.prepend(child.cloneNode(true)));
 
-        // Klonen für den "Anfang" (um unendlich nach links scrollen zu können)
-        originalChildren.reverse().forEach(child => {
-            const clone = child.cloneNode(true);
-            clone.setAttribute('aria-hidden', 'true');
-            track.prepend(clone);
-        });
-
-        // Lightbox Events neu initialisieren (wegen der neuen Klone)
+        // Initialisierung nach Klonen
+        updateFileNames();
         setupLightboxEvents();
 
-        // Scroll Handling
-        const calculateSetWidth = () => {
-             // Ungefähre Schätzung: Summe der Breiten der ursprünglichen Elemente
-             let width = 0;
-             // Wir messen das erste Drittel der scrollWidth
-             width = track.scrollWidth / 3;
-             return width;
+        let setWidth = track.scrollWidth / 3;
+        window.onload = () => { 
+            setWidth = track.scrollWidth / 3;
+            track.scrollLeft = setWidth; 
         };
 
-        let setWidth = 0;
-
-        // Startposition auf das mittlere Set setzen
-        const initScrollPosition = () => {
-            setWidth = calculateSetWidth();
-            track.scrollLeft = setWidth;
-        };
-        
-        // Bei Größenänderung des Fensters anpassen
-        window.addEventListener('resize', initScrollPosition);
-        
-        // Auf Layout-Berechnung warten
-        window.addEventListener('load', initScrollPosition);
-        setTimeout(initScrollPosition, 100);
-
-        // Prüfer für die Endlos-Schleife
-        track.addEventListener('scroll', () => {
+        track.onscroll = () => {
             if (track.scrollLeft <= 10) {
-                // Linker Rand erreicht -> springe zum Ende des mittleren Sets
                 track.style.scrollBehavior = 'auto';
                 track.scrollLeft = setWidth * 2; 
-                track.scrollLeft = track.scrollLeft + setWidth;
                 track.style.scrollBehavior = 'smooth';
-            } 
-            else if (track.scrollLeft >= setWidth * 2) {
-                // Rechter Rand erreicht -> springe zum Anfang des mittleren Sets
+            } else if (track.scrollLeft >= setWidth * 2) {
                 track.style.scrollBehavior = 'auto';
-                track.scrollLeft = track.scrollLeft - setWidth;
+                track.scrollLeft = setWidth;
                 track.style.scrollBehavior = 'smooth';
             }
-        });
+        };
 
-        // Klick-Handler für die Buttons (+48px für gap-12 Abstand)
-        galPrev.addEventListener('click', () => {
-            const scrollAmount = track.children[0].offsetWidth + 48; 
-            track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-        });
-        
-        galNext.addEventListener('click', () => {
-            const scrollAmount = track.children[0].offsetWidth + 48; 
-            track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        });
+        document.getElementById('gallery-prev').onclick = () => {
+            track.scrollBy({ left: -(track.children[0].offsetWidth + 48), behavior: 'smooth' });
+        };
+        document.getElementById('gallery-next').onclick = () => {
+            track.scrollBy({ left: (track.children[0].offsetWidth + 48), behavior: 'smooth' });
+        };
 
-        // Eigene Mauszeiger Logik
+        // Custom Cursor
         const cursorDot = document.querySelector('.cursor-dot');
         const cursorOutline = document.querySelector('.cursor-outline');
 
-        window.addEventListener('mousemove', function(e) {
+        window.onmousemove = (e) => {
             const posX = e.clientX;
             const posY = e.clientY;
-
-            // Punkt folgt sofort
             cursorDot.style.left = `${posX}px`;
             cursorDot.style.top = `${posY}px`;
+            cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 200, fill: "forwards" });
+        };
 
-            // Umriss folgt mit leichter Verzögerung
-            cursorOutline.animate({
-                left: `${posX}px`,
-                top: `${posY}px`
-            }, { duration: 200, fill: "forwards" });
-        });
-
-        // Hover-Effekt auf Links/Bilder, um den Mauszeiger wachsen zu lassen
-        const hoverables = document.querySelectorAll('a, button, .project-card, img');
-        
-        hoverables.forEach(el => {
-            el.addEventListener('mouseenter', () => {
+        document.querySelectorAll('a, button, .project-card, img').forEach(el => {
+            el.onmouseenter = () => {
                 cursorOutline.classList.add('hovered');
                 cursorDot.classList.add('hovered');
-            });
-            el.addEventListener('mouseleave', () => {
+            };
+            el.onmouseleave = () => {
                 cursorOutline.classList.remove('hovered');
                 cursorDot.classList.remove('hovered');
-            });
+            };
         });
     </script>
 </body>
