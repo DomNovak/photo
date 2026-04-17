@@ -43,6 +43,7 @@
             cursor: none;
         }
 
+        /* Invertierender Cursor-Effekt */
         .cursor-dot, .cursor-outline {
             position: fixed;
             top: 0; left: 0;
@@ -60,12 +61,14 @@
 
         @media (hover: none) { .cursor-dot, .cursor-outline { display: none; } body { cursor: auto; } }
 
+        /* Marquee Animation */
         .marquee-container { overflow: hidden; white-space: nowrap; }
         .marquee-content { display: inline-block; animation: marquee 20s linear infinite; animation-play-state: paused; }
         .marquee-wrapper:hover .marquee-content { animation-play-state: running; }
 
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
+        /* Projekt-Karten Styling */
         .project-card img {
             transition: all 0.5s ease;
             filter: grayscale(100%) contrast(1.1) brightness(1.05);
@@ -174,17 +177,20 @@
     </footer>
 
     <script>
-        // --- KONFIGURATION: DATEINAMEN ---
-        const bildDateien = [
-            "1.JPEG",
-            "urlaub_2024.jpg",
-            "abstrakte_kunst.png",
-            "schatten_studie.webp",
-            "DSC07254.jpg" // Beispiel aus deinem Screenshot
-        ];
-
         const track = document.getElementById('gallery-track');
         const photoFolder = 'photos/';
+        const LIMIT = 20; // Maximale Anzahl an Bildern zum Prüfen
+        const extensions = ['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG', 'webp', 'WEBP'];
+
+        // Funktion zum Prüfen ob ein Bild existiert
+        function checkImageExists(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = url;
+            });
+        }
 
         function createCard(path, name, index) {
             const div = document.createElement('div');
@@ -192,8 +198,8 @@
             div.innerHTML = `
                 <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                     <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_${index.toString().padStart(2, '0')}</span>
-                    <img src="${path}" alt="${name}" class="w-full h-full object-cover cursor-pointer" data-filename="${name}">
-                    <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold metadata-info">METADATA_READING...</span>
+                    <img src="${path}" alt="${name}" class="w-full h-full object-cover cursor-pointer">
+                    <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold metadata-info">RAW_DATA</span>
                 </div>
                 <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
                     <h3 class="text-xs font-bold font-mono tracking-widest text-black title-display">${name}</h3>
@@ -207,21 +213,20 @@
             EXIF.getData(imgElement, function() {
                 // Versuche verschiedene Metadaten-Felder (Windows Titel landet oft in ImageDescription)
                 const title = EXIF.getTag(this, "ImageDescription") || EXIF.getTag(this, "Title") || EXIF.getTag(this, "ObjectName");
-                const make = EXIF.getTag(this, "Make") || "N/A";
-                const model = EXIF.getTag(this, "Model") || "N/A";
+                const model = EXIF.getTag(this, "Model");
                 const exposure = EXIF.getTag(this, "ExposureTime");
                 const fNumber = EXIF.getTag(this, "FNumber");
 
-                // Wenn ein Titel gefunden wurde, ersetze die Anzeige
+                // Wenn ein Titel gefunden wurde, ersetze die Anzeige unter dem Bild
                 if (title) {
                     titleElement.textContent = title;
                 }
 
-                // Technische Infos unten rechts anzeigen
-                let techInfo = "RAW_FILE";
+                // Technische Infos unten rechts am Bild anzeigen
+                let techInfo = "DATA_OK";
                 if (exposure && fNumber) {
                     techInfo = `1/${Math.round(1/exposure)}s f/${fNumber}`;
-                } else if (model !== "N/A") {
+                } else if (model) {
                     techInfo = model;
                 }
                 metaElement.textContent = techInfo;
@@ -229,28 +234,59 @@
         }
 
         async function initGallery() {
-            bildDateien.sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
+            console.log("Starte Foto-Scan...");
+            const foundPaths = [];
+            let consecutiveMisses = 0;
 
-            const anzeigeLimit = Math.min(bildDateien.length, 20);
-            
-            for (let i = 0; i < anzeigeLimit; i++) {
-                const fileName = bildDateien[i];
-                const path = `${photoFolder}${fileName}`;
-                const card = createCard(path, fileName, i + 1);
-                track.appendChild(card);
-                
-                // Metadaten auslesen, sobald das Bild geladen ist
-                const img = card.querySelector('img');
-                const titleDisp = card.querySelector('.title-display');
-                const metaDisp = card.querySelector('.metadata-info');
-                
-                img.onload = () => extractMetadata(img, titleDisp, metaDisp);
+            // 1. Alle verfügbaren Bilder sammeln (1 bis 20)
+            for (let i = 1; i <= LIMIT; i++) {
+                let foundPath = null;
+                for (let ext of extensions) {
+                    const testPath = `${photoFolder}${i}.${ext}`;
+                    const exists = await checkImageExists(testPath);
+                    if (exists) {
+                        foundPath = testPath;
+                        break;
+                    }
+                }
+
+                if (foundPath) {
+                    foundPaths.push(foundPath);
+                    consecutiveMisses = 0;
+                } else {
+                    consecutiveMisses++;
+                    // Stoppe, wenn wir 3 Nummern in Folge nichts finden
+                    if (consecutiveMisses >= 3) break;
+                }
             }
 
-            if (anzeigeLimit > 0) {
+            // 2. Alphabetisch/Numerisch sortieren
+            foundPaths.sort((a, b) => {
+                const nameA = a.split('/').pop().toLowerCase();
+                const nameB = b.split('/').pop().toLowerCase();
+                return nameA.localeCompare(nameB, undefined, {numeric: true});
+            });
+
+            // 3. Karten rendern
+            if (foundPaths.length > 0) {
+                foundPaths.forEach((path, index) => {
+                    const fileName = path.split('/').pop();
+                    const card = createCard(path, fileName, index + 1);
+                    track.appendChild(card);
+                    
+                    const img = card.querySelector('img');
+                    const titleDisp = card.querySelector('.title-display');
+                    const metaDisp = card.querySelector('.metadata-info');
+                    
+                    // Metadaten auslesen, sobald das Bild geladen ist
+                    img.onload = () => extractMetadata(img, titleDisp, metaDisp);
+                });
+
                 initEndlessScroll();
                 setupLightboxEvents();
                 initCursorEvents();
+            } else {
+                track.innerHTML = '<p class="text-gray-400 font-mono p-8 text-center w-full uppercase">Keine Bilder gefunden. Bitte Dateien im Ordner /photos/ als 1.jpg, 2.jpg etc. benennen.</p>';
             }
         }
 
@@ -297,8 +333,10 @@
             if (originalItems.length > 5) {
                 originalItems.forEach(item => track.appendChild(item.cloneNode(true)));
                 originalItems.reverse().forEach(item => track.prepend(item.cloneNode(true)));
+
                 const setWidth = track.scrollWidth / 3;
                 track.scrollLeft = setWidth;
+
                 track.onscroll = () => {
                     if (track.scrollLeft <= 10) {
                         track.style.scrollBehavior = 'auto';
@@ -333,6 +371,7 @@
             });
         }
 
+        // Start
         window.onload = initGallery;
     </script>
 </body>
