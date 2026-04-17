@@ -1,1 +1,35 @@
+name: Website bauen
 
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dateien holen
+        uses: actions/checkout@v4
+
+      - name: Bilder einfügen und HTML bauen
+        run: |
+          shopt -s nullglob nocaseglob
+          cp template.html index.html
+          BILDER=""
+          for BILD in photos/*.{jpg,jpeg,png,webp}; do
+            BILDER="$BILDER<img src=\"$BILD\" loading=\"lazy\">"
+          done
+          sed -i "s||$BILDER|g" index.html
+
+      - name: Bei GitHub Pages hochladen
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Website veröffentlichen
+        uses: actions/deploy-pages@v4
