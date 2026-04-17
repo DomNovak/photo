@@ -52,19 +52,21 @@
             border-radius: 50%;
             z-index: 9999;
             pointer-events: none;
+            /* Der Zaubertrick: Invertiert die Farbe basierend auf dem Hintergrund */
+            mix-blend-mode: difference; 
         }
 
         .cursor-dot {
             width: 8px;
             height: 8px;
-            background-color: #050505;
+            background-color: #ffffff; /* Weiß wird durch difference auf weißem Grund zu schwarz, auf schwarzem zu weiß */
             transition: background-color 0.2s ease;
         }
 
         .cursor-outline {
             width: 40px;
             height: 40px;
-            border: 1px solid #050505;
+            border: 1px solid #ffffff;
             background-color: transparent;
             transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s, transform 0.2s;
         }
@@ -72,7 +74,8 @@
         /* Hover-Status für Mauszeiger */
         .cursor-outline.hovered {
             transform: translate(-50%, -50%) scale(2);
-            background-color: rgba(5, 5, 5, 0.05);
+            background-color: #ffffff; /* Füllt den Kreis weiß, was den Inhalt darunter komplett invertiert (X-Ray Effekt) */
+            border-color: transparent;
         }
         
         .cursor-dot.hovered {
