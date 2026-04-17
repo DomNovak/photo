@@ -168,15 +168,15 @@
 
     <script>
         const track = document.getElementById('gallery-track');
-        const MAX_CHECK = 50; // Maximale Anzahl an Bildern, die wir versuchen zu laden
+        const MAX_CHECK = 50; // Maximale Anzahl an Bildern
         const photoFolder = 'photos/';
-        let imagesToRender = [];
 
         // --- FUNKTION: BILDER-ORDNER SCANNEN UND SORTIEREN ---
         async function scanAndBuildGallery() {
             console.log("Starte Foto-Scan...");
             
-            const extensions = ['jpg', 'JPEG', 'jpeg', 'png'];
+            // Erweiterte Liste an Endungen inkl. Großschreibung
+            const extensions = ['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG', 'webp', 'WEBP'];
             const foundPaths = [];
 
             // 1. Alle verfügbaren Bilder sammeln
@@ -187,19 +187,25 @@
                     const exists = await checkImageExists(testPath);
                     if (exists) {
                         imagePath = testPath;
-                        break;
+                        break; // Endung gefunden für diese Nummer
                     }
                 }
 
                 if (imagePath) {
                     foundPaths.push(imagePath);
                 } else {
-                    // Stop, wenn die Nummerierung unterbrochen wird
-                    break;
+                    // Wenn eine Nummer fehlt, brechen wir nicht sofort ab, 
+                    // sondern schauen noch kurz weiter (falls z.B. 2 fehlt aber 3 da ist)
+                    // Um Performance zu sparen, brechen wir aber nach 2 Fehlversuchen ab
+                    let nextExists = false;
+                    for (let ext of extensions) {
+                        if (await checkImageExists(`${photoFolder}${i+1}.${ext}`)) nextExists = true;
+                    }
+                    if (!nextExists) break; 
                 }
             }
 
-            // 2. Alphabetisch sortieren nach dem reinen Dateinamen
+            // 2. Alphabetisch sortieren
             foundPaths.sort((a, b) => {
                 const nameA = a.split('/').pop().toLowerCase();
                 const nameB = b.split('/').pop().toLowerCase();
@@ -218,7 +224,7 @@
                 setupLightboxEvents();
                 initCursorEvents();
             } else {
-                track.innerHTML = '<p class="text-gray-400 font-mono">Keine Bilder im Ordner /photos/ gefunden. Bitte nenne sie 1.jpg, 2.jpg usw.</p>';
+                track.innerHTML = '<p class="text-gray-400 font-mono p-8">Keine Bilder im Ordner /photos/ gefunden. Benenne deine Dateien 1.jpg, 2.jpg etc.</p>';
             }
         }
 
@@ -238,7 +244,7 @@
                 <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                     <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_${index.toString().padStart(2, '0')}</span>
                     <img src="${path}" alt="${name}" class="w-full h-full object-cover cursor-pointer">
-                    <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">AUTOSCAN</span>
+                    <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">SCAN_OK</span>
                 </div>
                 <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
                     <h3 class="text-xs font-bold font-mono tracking-widest text-black">${name}</h3>
@@ -291,24 +297,27 @@
         // --- ENDLOS SCROLL & NAVIGATION ---
         function initEndlessScroll() {
             const originalItems = Array.from(track.children);
-            // Klone für Endlos-Effekt
-            originalItems.forEach(item => track.appendChild(item.cloneNode(true)));
-            originalItems.reverse().forEach(item => track.prepend(item.cloneNode(true)));
+            
+            // Nur klonen, wenn genug Bilder für einen sinnvollen Endlos-Effekt da sind (> 4)
+            if (originalItems.length > 4) {
+                originalItems.forEach(item => track.appendChild(item.cloneNode(true)));
+                originalItems.reverse().forEach(item => track.prepend(item.cloneNode(true)));
 
-            const setWidth = track.scrollWidth / 3;
-            track.scrollLeft = setWidth;
+                const setWidth = track.scrollWidth / 3;
+                track.scrollLeft = setWidth;
 
-            track.onscroll = () => {
-                if (track.scrollLeft <= 10) {
-                    track.style.scrollBehavior = 'auto';
-                    track.scrollLeft = setWidth * 2;
-                    track.style.scrollBehavior = 'smooth';
-                } else if (track.scrollLeft >= setWidth * 2) {
-                    track.style.scrollBehavior = 'auto';
-                    track.scrollLeft = setWidth;
-                    track.style.scrollBehavior = 'smooth';
-                }
-            };
+                track.onscroll = () => {
+                    if (track.scrollLeft <= 10) {
+                        track.style.scrollBehavior = 'auto';
+                        track.scrollLeft = setWidth * 2;
+                        track.style.scrollBehavior = 'smooth';
+                    } else if (track.scrollLeft >= setWidth * 2) {
+                        track.style.scrollBehavior = 'auto';
+                        track.scrollLeft = setWidth;
+                        track.style.scrollBehavior = 'smooth';
+                    }
+                };
+            }
         }
 
         document.getElementById('gallery-prev').onclick = () => track.scrollBy({ left: -400, behavior: 'smooth' });
