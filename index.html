@@ -8,6 +8,9 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- EXIF Library zum Auslesen der Metadaten -->
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,7 +66,6 @@
 
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* Projekt-Karten Styling für dynamische Inhalte */
         .project-card img {
             transition: all 0.5s ease;
             filter: grayscale(100%) contrast(1.1) brightness(1.05);
@@ -85,9 +87,9 @@
     <div class="cursor-dot hidden md:block"></div>
     <div class="cursor-outline hidden md:block"></div>
 
-    <!-- Lightbox -->
+    <!-- Lightbox Modal -->
     <div id="lightbox" class="fixed inset-0 z-[100] bg-white/95 hidden justify-center items-center opacity-0 transition-opacity duration-300 backdrop-blur-md cursor-pointer">
-        <button id="lightbox-close" class="absolute top-6 right-8 text-black font-display font-bold text-xl hover:bg-acid px-2 tracking-widest">SCHLIESSEN [X]</button>
+        <button id="lightbox-close" class="absolute top-6 right-8 text-black font-display font-bold text-xl hover:bg-acid px-2 tracking-widest uppercase">Schließen [X]</button>
         <button id="lightbox-prev" class="absolute left-2 md:left-8 text-black p-4 group">
              <span class="font-display font-black text-4xl md:text-6xl group-hover:-translate-x-2 transition-transform block">&lt;</span>
         </button>
@@ -97,6 +99,7 @@
         <img id="lightbox-img" src="" alt="Vorschau" class="max-h-[85vh] max-w-[80vw] object-contain shadow-2xl border border-black/10">
     </div>
 
+    <!-- Navigation -->
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-black/5 px-6 py-6 flex justify-between items-center transition-all">
         <a href="#" class="text-black font-display font-bold text-2xl tracking-tighter hover:bg-acid px-1 transition-colors">DNVK FOTOGRAFIE</a>
         <div class="hidden md:flex gap-8 text-sm font-light tracking-widest uppercase text-black">
@@ -107,30 +110,33 @@
         <button class="md:hidden text-black font-bold text-2xl">☰</button>
     </nav>
 
+    <!-- Hero -->
     <header class="h-screen w-full flex flex-col justify-center items-center relative px-4 overflow-hidden bg-[#fdfdfd]">
         <h1 class="font-display font-extrabold text-[12vw] leading-[0.85] text-center uppercase text-black z-10">
             Licht<br>
             <span class="text-transparent" style="-webkit-text-stroke: 2px #050505;">Schatten</span><br>
             Raum
         </h1>
-        <p class="mt-8 font-sans text-sm md:text-base tracking-[0.3em] uppercase text-gray-500 font-semibold">Experimentelle Fotografie</p>
+        <p class="mt-8 font-sans text-sm md:text-base tracking-[0.3em] uppercase text-gray-500 font-semibold">Metadaten & Fragmente</p>
         <div class="absolute bottom-10 animate-bounce">
             <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
         </div>
     </header>
 
+    <!-- Marquee -->
     <section class="marquee-wrapper bg-acid text-black py-4 border-y border-black transform -rotate-1 scale-105 z-20 relative">
         <div class="marquee-container">
             <div class="marquee-content font-display font-bold text-4xl md:text-6xl uppercase tracking-tight">
-                +++ Experimente +++ Analoge Prozesse +++ Digitale Glitches +++ Visuelle Identität +++ Konzeptkunst +++ Keine Regeln +++ 
-                +++ Experimente +++ Analoge Prozesse +++ Digitale Glitches +++ Visuelle Identität +++ Konzeptkunst +++ Keine Regeln +++
+                +++ Metadaten Extraktion +++ Analoge Prozesse +++ Digitale Glitches +++ Visuelle Identität +++ Konzeptkunst +++ Keine Regeln +++ 
+                +++ Metadaten Extraktion +++ Analoge Prozesse +++ Digitale Glitches +++ Visuelle Identität +++ Konzeptkunst +++ Keine Regeln +++
             </div>
         </div>
     </section>
 
+    <!-- Galerie Sektion -->
     <main id="work" class="py-32 w-full overflow-hidden relative bg-[#f4f4f4]">
         <div class="px-4 md:px-12 mb-8 max-w-7xl mx-auto w-full">
-            <h2 class="font-display text-4xl md:text-6xl font-bold mb-4 text-black">Ausgewählte<br><span class="bg-acid px-2 inline-block">Fragmente</span></h2>
+            <h2 class="font-display text-4xl md:text-6xl font-bold mb-4 text-black italic">Archiv<br><span class="bg-acid px-2 inline-block not-italic">Fragmente</span></h2>
             <div class="h-1 w-24 bg-black mt-6"></div>
         </div>
 
@@ -138,28 +144,29 @@
             <button id="gallery-prev" class="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 border border-black/20 hover:bg-black hover:text-white rounded-full flex items-center justify-center transition-all bg-white/50 backdrop-blur-sm shadow-sm">←</button>
             <button id="gallery-next" class="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 border border-black/20 hover:bg-black hover:text-white rounded-full flex items-center justify-center transition-all bg-white/50 backdrop-blur-sm shadow-sm">→</button>
 
-            <!-- Der Track wird jetzt per JavaScript befüllt -->
             <div id="gallery-track" class="flex gap-12 overflow-x-auto px-12 md:px-24 py-4 snap-x snap-mandatory scroll-smooth hide-scrollbar items-center h-[500px] md:h-[650px]">
-                <!-- Dynamischer Content landet hier -->
+                <!-- Bilder werden via JS geladen -->
             </div>
         </div>
     </main>
 
+    <!-- Manifest -->
     <section id="about" class="bg-white py-24 border-t border-black/10">
         <div class="container mx-auto px-4 md:px-12 grid md:grid-cols-2 gap-16 items-center">
             <h2 class="font-display text-5xl md:text-7xl font-bold text-black">Das<br><span class="bg-acid px-2">Manifest</span></h2>
             <div class="space-y-6 text-gray-700 font-light text-lg leading-relaxed">
-                <p><span class="bg-black text-white px-2 py-0.5 font-bold mr-2 text-sm">01.</span> Wir suchen nicht nach der perfekten Belichtung, sondern nach der echten Emotion.</p>
+                <p><span class="bg-black text-white px-2 py-0.5 font-bold mr-2 text-sm">01.</span> Wir suchen nicht nach der perfekten Belichtung, sondern nach der Emotion.</p>
                 <p><span class="bg-black text-white px-2 py-0.5 font-bold mr-2 text-sm">02.</span> Körnung ist kein Fehler. Sie ist die Textur der Realität.</p>
-                <p><span class="bg-black text-white px-2 py-0.5 font-bold mr-2 text-sm">03.</span> In einer Welt voller Farben ist Schwarz-Weiß die Wahrheit.</p>
+                <p><span class="bg-black text-white px-2 py-0.5 font-bold mr-2 text-sm">03.</span> Daten hinter dem Bild erzählen die halbe Geschichte.</p>
             </div>
         </div>
     </section>
 
+    <!-- Kontakt -->
     <footer id="contact" class="bg-acid text-black py-20 px-4 border-t-2 border-black">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
             <div>
-                <h2 class="font-display text-6xl md:text-8xl font-black uppercase mb-6">Zusammen<br>Gestalten</h2>
+                <h2 class="font-display text-6xl md:text-8xl font-black uppercase mb-6">Let's<br>Connect</h2>
                 <a href="mailto:hello@dnvk.at" class="text-2xl font-bold border-b-2 border-black hover:text-white transition-colors">hello@dnvk.at</a>
             </div>
             <p class="text-sm opacity-70 font-semibold">© 2026 DNVK Dominik Novak.</p>
@@ -167,75 +174,17 @@
     </footer>
 
     <script>
+        // --- KONFIGURATION: DATEINAMEN ---
+        const bildDateien = [
+            "1.JPEG",
+            "urlaub_2024.jpg",
+            "abstrakte_kunst.png",
+            "schatten_studie.webp",
+            "DSC07254.jpg" // Beispiel aus deinem Screenshot
+        ];
+
         const track = document.getElementById('gallery-track');
-        const MAX_CHECK = 50; // Maximale Anzahl an Bildern
         const photoFolder = 'photos/';
-
-        // --- FUNKTION: BILDER-ORDNER SCANNEN UND SORTIEREN ---
-        async function scanAndBuildGallery() {
-            console.log("Starte Foto-Scan...");
-            
-            // Erweiterte Liste an Endungen inkl. Großschreibung
-            const extensions = ['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG', 'webp', 'WEBP'];
-            const foundPaths = [];
-
-            // 1. Alle verfügbaren Bilder sammeln
-            for (let i = 1; i <= MAX_CHECK; i++) {
-                let imagePath = null;
-                for (let ext of extensions) {
-                    const testPath = `${photoFolder}${i}.${ext}`;
-                    const exists = await checkImageExists(testPath);
-                    if (exists) {
-                        imagePath = testPath;
-                        break; // Endung gefunden für diese Nummer
-                    }
-                }
-
-                if (imagePath) {
-                    foundPaths.push(imagePath);
-                } else {
-                    // Wenn eine Nummer fehlt, brechen wir nicht sofort ab, 
-                    // sondern schauen noch kurz weiter (falls z.B. 2 fehlt aber 3 da ist)
-                    // Um Performance zu sparen, brechen wir aber nach 2 Fehlversuchen ab
-                    let nextExists = false;
-                    for (let ext of extensions) {
-                        if (await checkImageExists(`${photoFolder}${i+1}.${ext}`)) nextExists = true;
-                    }
-                    if (!nextExists) break; 
-                }
-            }
-
-            // 2. Alphabetisch sortieren
-            foundPaths.sort((a, b) => {
-                const nameA = a.split('/').pop().toLowerCase();
-                const nameB = b.split('/').pop().toLowerCase();
-                return nameA.localeCompare(nameB);
-            });
-
-            // 3. Galerie aufbauen
-            if (foundPaths.length > 0) {
-                foundPaths.forEach((path, index) => {
-                    const fileName = path.split('/').pop();
-                    const card = createCard(path, fileName, index + 1);
-                    track.appendChild(card);
-                });
-
-                initEndlessScroll();
-                setupLightboxEvents();
-                initCursorEvents();
-            } else {
-                track.innerHTML = '<p class="text-gray-400 font-mono p-8">Keine Bilder im Ordner /photos/ gefunden. Benenne deine Dateien 1.jpg, 2.jpg etc.</p>';
-            }
-        }
-
-        function checkImageExists(url) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => resolve(true);
-                img.onerror = () => resolve(false);
-                img.src = url;
-            });
-        }
 
         function createCard(path, name, index) {
             const div = document.createElement('div');
@@ -243,36 +192,84 @@
             div.innerHTML = `
                 <div class="h-[80%] aspect-[3/4] overflow-hidden border-2 border-transparent group-hover:border-black transition-colors p-1 bg-black/5 relative shadow-sm">
                     <span class="absolute -top-6 left-0 text-[10px] font-mono text-gray-500 font-semibold">FRAME_${index.toString().padStart(2, '0')}</span>
-                    <img src="${path}" alt="${name}" class="w-full h-full object-cover cursor-pointer">
-                    <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold">SCAN_OK</span>
+                    <img src="${path}" alt="${name}" class="w-full h-full object-cover cursor-pointer" data-filename="${name}">
+                    <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-gray-500 font-semibold metadata-info">METADATA_READING...</span>
                 </div>
                 <div class="mt-8 opacity-40 group-hover:opacity-100 transition-opacity text-center">
-                    <h3 class="text-xs font-bold font-mono tracking-widest text-black">${name}</h3>
+                    <h3 class="text-xs font-bold font-mono tracking-widest text-black title-display">${name}</h3>
                 </div>
             `;
             return div;
         }
 
+        // Metadaten-Extraktion für jedes Bild
+        function extractMetadata(imgElement, titleElement, metaElement) {
+            EXIF.getData(imgElement, function() {
+                // Versuche verschiedene Metadaten-Felder (Windows Titel landet oft in ImageDescription)
+                const title = EXIF.getTag(this, "ImageDescription") || EXIF.getTag(this, "Title") || EXIF.getTag(this, "ObjectName");
+                const make = EXIF.getTag(this, "Make") || "N/A";
+                const model = EXIF.getTag(this, "Model") || "N/A";
+                const exposure = EXIF.getTag(this, "ExposureTime");
+                const fNumber = EXIF.getTag(this, "FNumber");
+
+                // Wenn ein Titel gefunden wurde, ersetze die Anzeige
+                if (title) {
+                    titleElement.textContent = title;
+                }
+
+                // Technische Infos unten rechts anzeigen
+                let techInfo = "RAW_FILE";
+                if (exposure && fNumber) {
+                    techInfo = `1/${Math.round(1/exposure)}s f/${fNumber}`;
+                } else if (model !== "N/A") {
+                    techInfo = model;
+                }
+                metaElement.textContent = techInfo;
+            });
+        }
+
+        async function initGallery() {
+            bildDateien.sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
+
+            const anzeigeLimit = Math.min(bildDateien.length, 20);
+            
+            for (let i = 0; i < anzeigeLimit; i++) {
+                const fileName = bildDateien[i];
+                const path = `${photoFolder}${fileName}`;
+                const card = createCard(path, fileName, i + 1);
+                track.appendChild(card);
+                
+                // Metadaten auslesen, sobald das Bild geladen ist
+                const img = card.querySelector('img');
+                const titleDisp = card.querySelector('.title-display');
+                const metaDisp = card.querySelector('.metadata-info');
+                
+                img.onload = () => extractMetadata(img, titleDisp, metaDisp);
+            }
+
+            if (anzeigeLimit > 0) {
+                initEndlessScroll();
+                setupLightboxEvents();
+                initCursorEvents();
+            }
+        }
+
         // --- LIGHTBOX ---
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
-        let currentImgIndex = 0;
+        let currentIdx = 0;
 
         function setupLightboxEvents() {
             const imgs = Array.from(document.querySelectorAll('.project-card img'));
             imgs.forEach((img, idx) => {
                 img.onclick = () => {
-                    currentImgIndex = idx;
-                    openLightbox(img.src);
+                    currentIdx = idx;
+                    lightboxImg.src = img.src;
+                    lightbox.classList.remove('hidden');
+                    lightbox.classList.add('flex');
+                    setTimeout(() => lightbox.classList.remove('opacity-0'), 10);
                 };
             });
-        }
-
-        function openLightbox(src) {
-            lightboxImg.src = src;
-            lightbox.classList.remove('hidden');
-            lightbox.classList.add('flex');
-            setTimeout(() => lightbox.classList.remove('opacity-0'), 10);
         }
 
         document.getElementById('lightbox-close').onclick = () => {
@@ -283,29 +280,25 @@
         document.getElementById('lightbox-next').onclick = (e) => {
             e.stopPropagation();
             const imgs = document.querySelectorAll('.project-card img');
-            currentImgIndex = (currentImgIndex + 1) % imgs.length;
-            lightboxImg.src = imgs[currentImgIndex].src;
+            currentIdx = (currentIdx + 1) % imgs.length;
+            lightboxImg.src = imgs[currentIdx].src;
         };
 
         document.getElementById('lightbox-prev').onclick = (e) => {
             e.stopPropagation();
             const imgs = document.querySelectorAll('.project-card img');
-            currentImgIndex = (currentImgIndex - 1 + imgs.length) % imgs.length;
-            lightboxImg.src = imgs[currentImgIndex].src;
+            currentIdx = (currentIdx - 1 + imgs.length) % imgs.length;
+            lightboxImg.src = imgs[currentIdx].src;
         };
 
-        // --- ENDLOS SCROLL & NAVIGATION ---
+        // --- ENDLOS SCROLL ---
         function initEndlessScroll() {
             const originalItems = Array.from(track.children);
-            
-            // Nur klonen, wenn genug Bilder für einen sinnvollen Endlos-Effekt da sind (> 4)
-            if (originalItems.length > 4) {
+            if (originalItems.length > 5) {
                 originalItems.forEach(item => track.appendChild(item.cloneNode(true)));
                 originalItems.reverse().forEach(item => track.prepend(item.cloneNode(true)));
-
                 const setWidth = track.scrollWidth / 3;
                 track.scrollLeft = setWidth;
-
                 track.onscroll = () => {
                     if (track.scrollLeft <= 10) {
                         track.style.scrollBehavior = 'auto';
@@ -323,7 +316,7 @@
         document.getElementById('gallery-prev').onclick = () => track.scrollBy({ left: -400, behavior: 'smooth' });
         document.getElementById('gallery-next').onclick = () => track.scrollBy({ left: 400, behavior: 'smooth' });
 
-        // --- CURSOR ---
+        // --- CUSTOM CURSOR ---
         const cursorDot = document.querySelector('.cursor-dot');
         const cursorOutline = document.querySelector('.cursor-outline');
 
@@ -340,8 +333,7 @@
             });
         }
 
-        // Start
-        window.onload = scanAndBuildGallery;
+        window.onload = initGallery;
     </script>
 </body>
 </html>
