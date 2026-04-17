@@ -18,13 +18,32 @@ jobs:
 
       - name: Bilder einfügen und HTML bauen
         run: |
-          shopt -s nullglob nocaseglob
-          cp template.html index.html
-          BILDER=""
-          for BILD in photos/*.{jpg,jpeg,png,webp}; do
-            BILDER="$BILDER<img src=\"$BILD\" loading=\"lazy\">"
-          done
-          sed -i "s||$BILDER|g" index.html
+          python3 -c '
+          import os, glob
+          
+          # Finde alle Bilder und ignoriere Groß-/Kleinschreibung der Endungen
+          extensions = ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.JPG", "*.JPEG", "*.PNG", "*.WEBP"]
+          alle_bilder = []
+          
+          if os.path.exists("photos"):
+              for ext in extensions:
+                  alle_bilder.extend(glob.glob(f"photos/{ext}"))
+          
+          # Erstelle die HTML-Bilderliste (alphabetisch sortiert)
+          bilder_html = ""
+          for filepath in sorted(alle_bilder):
+              bilder_html += f"<img src=\"{filepath}\" loading=\"lazy\">\n"
+
+          # Öffne die Vorlage und setze die Bilder ein
+          with open("template.html", "r", encoding="utf-8") as f:
+              html = f.read()
+          
+          html = html.replace("", bilder_html)
+          
+          # Speichere die fertige Website
+          with open("index.html", "w", encoding="utf-8") as f:
+              f.write(html)
+          '
 
       - name: Bei GitHub Pages hochladen
         uses: actions/upload-pages-artifact@v3
