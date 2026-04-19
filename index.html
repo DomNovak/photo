@@ -1,9 +1,14 @@
-
+```html
 <!DOCTYPE html>
 <html lang="de" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Safari / iOS Adressleiste Farbe -->
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
     <title>DNVK // FOTOGRAFIE</title>
     
     <!-- Tailwind CSS -->
@@ -28,6 +33,7 @@
                         'black': '#050505',
                         'white': '#ffffff',
                         'light': '#f8f8f8',
+                        'graz-green': '#2d9a44',
                     },
                     fontFamily: {
                         'sans': ['Inter', 'sans-serif'],
@@ -62,6 +68,13 @@
             touch-action: pan-y;
         }
 
+        /* Verhindert Springen der Scrollposition bei offenem Menü */
+        body.menu-open {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
         /* Invertierender Cursor */
         .cursor-dot, .cursor-outline {
             position: fixed;
@@ -80,7 +93,7 @@
 
         @media (hover: none) { .cursor-dot, .cursor-outline { display: none; } body { cursor: auto; } }
 
-        /* Marquee Animation */
+        /* Marquee */
         .marquee-container { overflow: hidden; white-space: nowrap; }
         .marquee-content { display: inline-block; animation: marquee 20s linear infinite; animation-play-state: paused; }
         .marquee-wrapper:hover .marquee-content { animation-play-state: running; }
@@ -89,13 +102,16 @@
 
         /* Projekt-Karten: Mobile in Farbe, Desktop Hover-Effekt */
         .project-card img {
-            transition: all 0.5s ease;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
             filter: none;
         }
         
         @media (min-width: 768px) {
             .project-card img {
                 filter: grayscale(100%) contrast(1.1) brightness(1.05);
+            }
+            .project-card.is-center img {
+                filter: grayscale(0%) contrast(1) brightness(1);
             }
             .project-card:hover img {
                 filter: grayscale(0%) contrast(1) brightness(1);
@@ -134,13 +150,13 @@
 
     <!-- Mobil-Menü Overlay -->
     <div id="mobile-menu" class="fixed inset-0 z-[60] bg-vibrant-yellow translate-x-full opacity-0 pointer-events-none flex flex-col justify-center items-center px-6">
-        <button id="close-menu" class="absolute top-8 right-8 text-vibrant-red font-display font-black text-4xl p-4 focus:outline-none">X</button>
+        <button id="close-menu" class="absolute top-8 right-8 text-vibrant-red font-display font-black text-5xl p-4 focus:outline-none">X</button>
         <div class="flex flex-col gap-6 text-center w-full">
-            <a href="#work" class="mobile-link text-vibrant-purple font-display font-black text-3xl md:text-6xl uppercase hover:text-vibrant-red transition-all transform hover:scale-105">Projekte</a>
-            <a href="#about" class="mobile-link text-vibrant-purple font-display font-black text-3xl md:text-6xl uppercase hover:text-vibrant-red transition-all transform hover:scale-105">Manifest</a>
-            <a href="#contact" class="mobile-link text-vibrant-purple font-display font-black text-3xl md:text-6xl uppercase hover:text-vibrant-red transition-all transform hover:scale-105">Kontakt</a>
+            <a href="#work" class="mobile-link text-vibrant-purple font-display font-black text-4xl md:text-6xl uppercase hover:text-vibrant-red transition-all transform hover:scale-105">Projekte</a>
+            <a href="#about" class="mobile-link text-vibrant-purple font-display font-black text-4xl md:text-6xl uppercase hover:text-vibrant-red transition-all transform hover:scale-105">Manifest</a>
+            <a href="#contact" class="mobile-link text-vibrant-purple font-display font-black text-4xl md:text-6xl uppercase hover:text-vibrant-red transition-all transform hover:scale-105">Kontakt</a>
         </div>
-        <div class="absolute bottom-12 text-black font-mono text-[10px] uppercase tracking-widest opacity-50">© 2026 DNVK DOMINIK NOVAK</div>
+        <div class="absolute bottom-12 text-black font-mono text-[10px] uppercase tracking-widest opacity-50">© 2026 DNVK FOTOGRAFIE</div>
     </div>
 
     <!-- Lightbox -->
@@ -155,15 +171,18 @@
         <img id="lightbox-img" src="" alt="Vorschau" class="max-h-[85vh] max-w-[80vw] object-contain shadow-2xl border border-vibrant-purple/20">
     </div>
 
-    <!-- Nav -->
+    <!-- Navigation -->
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-sm border-b border-vibrant-red/10 px-6 py-6 flex justify-between items-center transition-all">
-        <a href="#home" class="text-black font-display font-bold text-xl md:text-2xl tracking-tighter hover:bg-vibrant-yellow px-1 transition-colors uppercase">DNVK FOTOGRAFIE</a>
+        <button id="logo-top" class="text-black font-display font-bold text-xl md:text-2xl tracking-tighter hover:bg-vibrant-yellow px-1 transition-colors uppercase focus:outline-none">DNVK FOTOGRAFIE</button>
+        
         <div class="hidden md:flex gap-8 text-sm font-light tracking-widest uppercase text-black">
             <a href="#work" class="hover:bg-vibrant-red hover:text-white px-2 transition-colors">Projekte</a>
             <a href="#about" class="hover:bg-vibrant-purple hover:text-white px-2 transition-colors">Manifest</a>
             <a href="#contact" class="hover:bg-vibrant-yellow px-2 transition-colors">Kontakt</a>
         </div>
-        <button id="menu-toggle" class="md:hidden text-vibrant-red font-bold text-2xl p-2 focus:outline-none">☰</button>
+        
+        <!-- Menü Button: Verkleinert und ausgerichtet -->
+        <button id="menu-toggle" class="md:hidden text-vibrant-red font-bold text-3xl p-1 focus:outline-none flex items-center">☰</button>
     </nav>
 
     <!-- Hero -->
@@ -174,7 +193,7 @@
             Raum
         </h1>
         <p class="mt-8 font-sans text-sm md:text-base tracking-[0.3em] uppercase text-vibrant-red font-bold">Metadaten & Fragmente</p>
-        <div class="absolute bottom-10 animate-bounce">
+        <div class="absolute bottom-10 animate-bounce cursor-pointer" onclick="document.getElementById('work').scrollIntoView({behavior:'smooth'})">
             <svg class="w-6 h-6 text-vibrant-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
         </div>
     </header>
@@ -197,13 +216,10 @@
         </div>
 
         <div class="relative w-full group/gallery mt-12 px-6 md:px-0">
-            <!-- Navigation Buttons (Nur auf Desktop sichtbar) -->
             <button id="gallery-prev" class="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 border border-vibrant-purple/20 hover:bg-vibrant-purple hover:text-white rounded-full items-center justify-center transition-all bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none">←</button>
             <button id="gallery-next" class="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 border border-vibrant-purple/20 hover:bg-vibrant-purple hover:text-white rounded-full items-center justify-center transition-all bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none">→</button>
             
-            <!-- Track: Mobile Vertikal (flex-col), Desktop Horizontal (md:flex-row) -->
             <div id="gallery-track" class="flex flex-col md:flex-row gap-16 md:gap-12 md:overflow-x-auto md:px-24 py-4 md:snap-x md:snap-mandatory scroll-smooth hide-scrollbar items-center md:h-[650px] min-h-[300px] relative">
-                <!-- Lade-Platzhalter -->
                 <div id="gallery-loader" class="absolute inset-0 z-10 bg-light flex flex-col items-center justify-center gap-6 py-20 text-vibrant-purple font-display font-bold">
                     <div class="loader-dots flex gap-2">
                         <div class="w-4 h-4 bg-vibrant-purple rounded-full"></div>
@@ -235,15 +251,24 @@
                 <h2 class="font-display text-4xl md:text-8xl font-black uppercase mb-8 leading-none">
                     Let's<br><span class="text-vibrant-red">Connect</span>
                 </h2>
-                <div class="flex justify-start">
+                <div class="flex flex-col gap-4 items-start">
                     <a href="mailto:hello@dnvk.at" class="text-2xl md:text-3xl font-bold border-b-2 border-black hover:bg-vibrant-purple hover:text-white transition-all inline-block pb-1">
                         hello@dnvk.at
                     </a>
+                    <a href="tel:+436641234567" class="text-xl md:text-2xl font-sans font-medium hover:text-vibrant-purple transition-colors">
+                        +43 664 123 45 67
+                    </a>
                 </div>
             </div>
-            <div class="w-full md:w-auto mt-8 md:mt-0 flex flex-col items-start md:items-end">
+            <div class="w-full md:w-auto mt-8 md:mt-0 flex flex-col items-start md:items-end gap-3">
+                <p class="text-lg font-mono uppercase tracking-[0.2em] font-black text-vibrant-red flex items-center gap-2">
+                    Made in Graz 
+                    <svg class="w-6 h-6 text-graz-green inline-block fill-current" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </p>
                 <p class="text-sm text-vibrant-purple font-bold tracking-widest">
-                    © 2026 DNVK Dominik Novak.
+                    © 2026 DNVK FOTOGRAFIE
                 </p>
             </div>
         </div>
@@ -255,25 +280,37 @@
         const LIMIT = 20; 
         const extensions = ['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG', 'webp', 'WEBP'];
         let setWidth = 0;
+        let scrollYPos = 0;
 
-        // --- MOBIL MENÜ ---
+        // --- NAVIGATION LOGO CLICK ---
+        document.getElementById('logo-top').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // --- MOBIL MENÜ LOGIK ---
         const menuToggle = document.getElementById('menu-toggle');
         const closeMenu = document.getElementById('close-menu');
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileLinks = document.querySelectorAll('.mobile-link');
 
         const showMenu = () => {
+            scrollYPos = window.pageYOffset;
             mobileMenu.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
             mobileMenu.style.transform = 'translateX(0)';
             mobileMenu.style.opacity = '1';
-            document.body.style.overflow = 'hidden'; 
+            
+            document.body.style.top = `-${scrollYPos}px`;
+            document.body.classList.add('menu-open');
         };
 
         const hideMenu = () => {
             mobileMenu.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
             mobileMenu.style.transform = 'translateX(100%)';
             mobileMenu.style.opacity = '0';
-            document.body.style.overflow = '';
+            
+            document.body.classList.remove('menu-open');
+            document.body.style.top = '';
+            window.scrollTo(0, scrollYPos);
         };
 
         menuToggle.addEventListener('click', showMenu);
@@ -289,13 +326,14 @@
                     if (targetElement) {
                         setTimeout(() => {
                             targetElement.scrollIntoView({ behavior: 'smooth' });
-                        }, 350);
+                        }, 400);
                     }
                 }
             });
         });
 
-        // --- GALERIE ---
+
+        // --- GALERIE LOGIK ---
         function checkImageExists(url) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -307,16 +345,15 @@
 
         function createCard(path, name, index) {
             const div = document.createElement('div');
-            // Mobile: Volle Breite, vertikal; Desktop: Feste Höhe, horizontal
-            div.className = "w-full md:w-auto md:h-full shrink-0 relative group project-card cursor-none flex flex-col justify-center";
+            div.className = "w-full md:w-auto md:h-full shrink-0 relative group project-card cursor-none flex flex-col justify-center transition-all duration-700";
             div.innerHTML = `
                 <div class="w-full md:h-[80%] aspect-square overflow-hidden border-2 border-transparent group-hover:border-vibrant-purple transition-colors p-1 bg-black/5 relative shadow-sm">
                     <span class="absolute -top-6 left-0 text-[10px] font-mono text-vibrant-red font-bold uppercase">FRAME_${index.toString().padStart(2, '0')}</span>
                     <img src="${path}" alt="${name}" class="w-full h-full object-cover cursor-pointer">
                     <span class="absolute -bottom-6 right-0 text-[10px] font-mono text-vibrant-purple font-bold metadata-info">RAW_DATA</span>
                 </div>
-                <div class="mt-8 opacity-60 md:opacity-40 group-hover:opacity-100 transition-opacity text-center px-2">
-                    <h3 class="text-xs md:text-xs font-bold font-mono tracking-widest text-black title-display uppercase break-all">${name}</h3>
+                <div class="mt-8 opacity-70 md:opacity-40 group-hover:opacity-100 transition-opacity text-center px-2">
+                    <h3 class="text-xs font-bold font-mono tracking-widest text-black title-display uppercase break-all">${name}</h3>
                 </div>
             `;
             return div;
@@ -368,7 +405,6 @@
                 return nameA.localeCompare(nameB, undefined, {numeric: true});
             });
 
-            // Loader entfernen
             const loader = document.getElementById('gallery-loader');
             if (loader) loader.remove();
 
@@ -383,7 +419,6 @@
                     img.onload = () => extractMetadata(img, titleDisp, metaDisp);
                 });
 
-                // Endlos-Scroll nur auf Desktop initialisieren
                 if (window.innerWidth >= 768) {
                     setTimeout(() => {
                         initEndlessScroll();
@@ -393,7 +428,7 @@
                 setupLightboxEvents();
                 initCursorEvents();
             } else {
-                track.innerHTML = '<p class="text-vibrant-purple font-mono p-8 text-center w-full uppercase">Keine Bilder gefunden.</p>';
+                track.innerHTML = '<p class="text-vibrant-purple font-mono p-8 text-center w-full uppercase">Archiv leer.</p>';
             }
         }
 
@@ -411,6 +446,7 @@
                         track.scrollLeft = setWidth;
                     }
                 });
+                handleInfiniteScroll();
             }
         }
 
@@ -420,6 +456,22 @@
 
         let isJumping = false;
         function handleInfiniteScroll() {
+            if (window.innerWidth >= 768) {
+                const cards = track.querySelectorAll('.project-card');
+                const trackRect = track.getBoundingClientRect();
+                const viewportCenter = trackRect.left + trackRect.width / 2;
+
+                cards.forEach(card => {
+                    const cardRect = card.getBoundingClientRect();
+                    const cardCenter = cardRect.left + cardRect.width / 2;
+                    if (Math.abs(cardCenter - viewportCenter) < 200) {
+                        card.classList.add('is-center');
+                    } else {
+                        card.classList.remove('is-center');
+                    }
+                });
+            }
+
             if (isJumping || window.innerWidth < 768) return;
             const currentScroll = track.scrollLeft;
             if (currentScroll <= 10) {
@@ -457,12 +509,21 @@
                     lightbox.classList.remove('hidden');
                     lightbox.classList.add('flex');
                     setTimeout(() => lightbox.classList.remove('opacity-0'), 10);
+                    
+                    scrollYPos = window.pageYOffset;
+                    document.body.style.top = `-${scrollYPos}px`;
+                    document.body.classList.add('menu-open');
                 };
             });
         }
         document.getElementById('lightbox-close').onclick = () => {
             lightbox.classList.add('opacity-0');
-            setTimeout(() => lightbox.classList.add('hidden'), 300);
+            setTimeout(() => {
+                lightbox.classList.add('hidden');
+                document.body.classList.remove('menu-open');
+                document.body.style.top = '';
+                window.scrollTo(0, scrollYPos);
+            }, 300);
         };
         document.getElementById('lightbox-next').onclick = (e) => {
             e.stopPropagation();
@@ -496,3 +557,5 @@
     </script>
 </body>
 </html>
+
+```
