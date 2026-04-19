@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="de" class="scroll-smooth">
 <head>
@@ -60,10 +61,9 @@
             background-color: #ffffff;
             color: #050505;
             cursor: none;
-            touch-action: pan-y; /* Erlaubt nur vertikales Scrollen auf dem Body */
+            touch-action: pan-y;
         }
 
-        /* Galerie erlaubt horizontales Swipen */
         #gallery-track {
             touch-action: pan-x;
         }
@@ -93,12 +93,20 @@
 
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* Projekt-Karten */
+        /* Projekt-Karten: Mobile in Farbe, Desktop Hover-Effekt */
         .project-card img {
             transition: all 0.5s ease;
-            filter: grayscale(100%) contrast(1.1) brightness(1.05);
+            filter: none; /* Mobile Standard: Farbe */
         }
-        .project-card:hover img { filter: grayscale(0%) contrast(1) brightness(1); }
+        
+        @media (min-width: 768px) {
+            .project-card img {
+                filter: grayscale(100%) contrast(1.1) brightness(1.05);
+            }
+            .project-card:hover img {
+                filter: grayscale(0%) contrast(1) brightness(1);
+            }
+        }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -111,6 +119,17 @@
 
         #mobile-menu {
             transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        /* Loading Spinner */
+        .loader-dots div {
+            animation: loader-dots 0.6s infinite alternate;
+        }
+        .loader-dots div:nth-child(2) { animation-delay: 0.2s; }
+        .loader-dots div:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes loader-dots {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0.3; transform: scale(0.7); }
         }
     </style>
 </head>
@@ -186,7 +205,18 @@
         <div class="relative w-full group/gallery mt-12">
             <button id="gallery-prev" class="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 border border-vibrant-purple/20 hover:bg-vibrant-purple hover:text-white rounded-full flex items-center justify-center transition-all bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none">←</button>
             <button id="gallery-next" class="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 border border-vibrant-purple/20 hover:bg-vibrant-purple hover:text-white rounded-full flex items-center justify-center transition-all bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none">→</button>
-            <div id="gallery-track" class="flex gap-12 overflow-x-auto px-12 md:px-24 py-4 snap-x snap-mandatory scroll-smooth hide-scrollbar items-center h-[500px] md:h-[650px]"></div>
+            
+            <div id="gallery-track" class="flex gap-12 overflow-x-auto px-12 md:px-24 py-4 snap-x snap-mandatory scroll-smooth hide-scrollbar items-center h-[500px] md:h-[650px] min-h-[400px]">
+                <!-- Lade-Platzhalter -->
+                <div id="gallery-loader" class="w-full flex flex-col items-center justify-center gap-6 py-20 text-vibrant-purple font-display font-bold absolute inset-0 z-10 bg-light">
+                    <div class="loader-dots flex gap-2">
+                        <div class="w-4 h-4 bg-vibrant-purple rounded-full"></div>
+                        <div class="w-4 h-4 bg-vibrant-red rounded-full"></div>
+                        <div class="w-4 h-4 bg-vibrant-yellow rounded-full"></div>
+                    </div>
+                    <p class="uppercase tracking-[0.2em] text-xs">Fotos werden geladen...</p>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -202,21 +232,21 @@
         </div>
     </section>
 
-    <!-- Kontakt -->
+    <!-- Kontakt - LINKSBÜNDIG AUF MOBILE -->
     <footer id="contact" class="bg-vibrant-yellow text-black py-24 px-6 border-t-2 border-black">
-        <div class="container mx-auto flex flex-col justify-center items-center gap-12 text-center md:text-left md:flex-row md:justify-between md:items-end">
+        <div class="container mx-auto flex flex-col justify-start items-start gap-12 text-left md:flex-row md:justify-between md:items-end">
             <div class="w-full md:w-auto">
-                <!-- Connect Größe auf Mobile angepasst (text-5xl) -->
-                <h2 class="font-display text-5xl md:text-8xl font-black uppercase mb-8 leading-none">
+                <!-- Verkleinerter Connect Schriftzug auf Mobile -->
+                <h2 class="font-display text-4xl md:text-8xl font-black uppercase mb-8 leading-none">
                     Let's<br><span class="text-vibrant-red">Connect</span>
                 </h2>
-                <div class="flex justify-center md:justify-start">
+                <div class="flex justify-start">
                     <a href="mailto:hello@dnvk.at" class="text-2xl md:text-3xl font-bold border-b-2 border-black hover:bg-vibrant-purple hover:text-white transition-all inline-block pb-1">
                         hello@dnvk.at
                     </a>
                 </div>
             </div>
-            <div class="w-full md:w-auto mt-8 md:mt-0 flex flex-col items-center md:items-end">
+            <div class="w-full md:w-auto mt-8 md:mt-0 flex flex-col items-start md:items-end">
                 <p class="text-sm text-vibrant-purple font-bold tracking-widest">
                     © 2026 DNVK Dominik Novak.
                 </p>
@@ -316,6 +346,7 @@
         async function initGallery() {
             const foundPaths = [];
             let consecutiveMisses = 0;
+            
             for (let i = 1; i <= LIMIT; i++) {
                 let foundPath = null;
                 for (let ext of extensions) {
@@ -334,11 +365,17 @@
                     if (consecutiveMisses >= 3) break;
                 }
             }
+            
             foundPaths.sort((a, b) => {
                 const nameA = a.split('/').pop().toLowerCase();
                 const nameB = b.split('/').pop().toLowerCase();
                 return nameA.localeCompare(nameB, undefined, {numeric: true});
             });
+
+            // Loader entfernen wenn fertig gescannt
+            const loader = document.getElementById('gallery-loader');
+            if (loader) loader.remove();
+
             if (foundPaths.length > 0) {
                 foundPaths.forEach((path, index) => {
                     const fileName = path.split('/').pop();
@@ -354,6 +391,8 @@
                     setupLightboxEvents();
                     initCursorEvents();
                 }, 500);
+            } else {
+                track.innerHTML = '<p class="text-vibrant-purple font-mono p-8 text-center w-full uppercase">Keine Bilder gefunden.</p>';
             }
         }
 
@@ -454,3 +493,5 @@
     </script>
 </body>
 </html>
+
+```
